@@ -1,0 +1,7 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* <-- FIX THIS LINE */
+
+/* Any of your custom CSS can go here */
