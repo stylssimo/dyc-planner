@@ -4,6 +4,7 @@ import './index.css'
 import App from './App'
 import './i18n' // Ensure this import is present to initialize i18n
 
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

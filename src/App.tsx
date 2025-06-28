@@ -18,6 +18,7 @@ const App = () => {
   const [loggedInUser, setLoggedInUser] = useState<any>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [isAuthInitialized, setIsAuthInitialized] = useState(false);
 
   const auth = getAuth();
 
@@ -50,6 +51,8 @@ const App = () => {
         setIsLoggedIn(false);
         setLoggedInUser(null);
       }
+
+      setIsAuthInitialized(true); // ✅ important
     });
 
     return () => unsubscribe();
@@ -95,35 +98,40 @@ const App = () => {
         />
 
         <main className={`pt-14 md:pt-0 ${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'} transition-all`}>
-          <Routes>
-            <Route
-              path="/admin"
-              element={
-                isLoggedIn && loggedInUser?.role === 'admin' ? (
-                  <AdminDashboard />
-                ) : (
-                  <Navigate to="/" />
-                )
-              }
-            />
-            <Route
-              path="/"
-              element={
-                <>
-                  <Hero />
-                  <SearchBar
-                    isLoggedIn={isLoggedIn}
-                    loggedInUser={loggedInUser}
-                    onLoginClick={() => setIsLoginModalOpen(true)}
-                    onLogout={handleLogout}
-                  />
-                  <Categories />
-                  <Recommendations />
-                  <Footer />
-                </>
-              }
-            />
-          </Routes>
+          {isAuthInitialized ? (
+            <Routes>
+              <Route
+                path="/admin"
+                element={
+                  isLoggedIn && loggedInUser?.role === 'admin' ? (
+                    <AdminDashboard />
+                  ) : (
+                    <Navigate to="/" />
+                  )
+                }
+              />
+              <Route
+                path="/"
+                element={
+                  <>
+                    <Hero />
+                    <SearchBar
+                      isLoggedIn={isLoggedIn}
+                      loggedInUser={loggedInUser}
+                      onLoginClick={() => setIsLoginModalOpen(true)}
+                      onLogout={handleLogout}
+                    />
+                    <Categories />
+                    <Recommendations />
+                    <Footer />
+                  </>
+                }
+              />
+            </Routes>
+          ) : (
+            <div className="flex justify-center items-center h-screen text-lg">Checking authentication...</div>
+          )}
+
         </main>
 
         <LoginModal

@@ -1,7 +1,7 @@
 // src/components/Navbar.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, Home, Info, Globe, LogIn, LayoutDashboard, ShieldCheck, Package, Settings, Handshake, Menu } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, Info, Globe, User, LogIn, LayoutDashboard, ShieldCheck, Package, Settings, Handshake, Menu } from 'lucide-react';
 
 interface NavbarProps {
     isLoggedIn: boolean;
@@ -113,7 +113,7 @@ const Navbar: React.FC<NavbarProps> = ({
 
                     {!isLoggedIn && (
                         <button onClick={onLoginClick} className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md">
-                            <LogIn size={20} />
+                            <User size={20} />
                             {!isSidebarCollapsed && <span>{t('loginModal.loginButton')}</span>}
                         </button>
                     )}
