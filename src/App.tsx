@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Hero from './components/Hero';
 import SearchBar from './components/SearchBar';
@@ -11,7 +11,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import Navbar from './components/Navbar';
-import { useNavigate } from 'react-router-dom';
+
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

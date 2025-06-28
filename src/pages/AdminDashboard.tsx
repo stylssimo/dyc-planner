@@ -1,6 +1,4 @@
 // src/pages/AdminDashboard.tsx
-import React from 'react';
-
 const AdminDashboard = () => {
     return (
         <div className="min-h-screen p-6 bg-gray-100">

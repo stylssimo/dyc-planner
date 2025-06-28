@@ -1,7 +1,7 @@
 // src/components/Navbar.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, Home, Info, Globe, LogIn, LayoutDashboard, User, ShieldCheck, Package, Settings, Handshake, Menu } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, Info, Globe, LogIn, LayoutDashboard, ShieldCheck, Package, Settings, Handshake, Menu } from 'lucide-react';
 
 interface NavbarProps {
     isLoggedIn: boolean;

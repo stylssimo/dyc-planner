@@ -1,5 +1,4 @@
-// src/components/Categories.tsx
-import React from 'react';
+
 
 const categories = [
     { title: 'Seight Seeing', count: 120, img: 'https://source.unsplash.com/400x300/?sightseeing' },

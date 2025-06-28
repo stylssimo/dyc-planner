@@ -1,5 +1,5 @@
 // src/components/Recommendations.tsx
-import React from 'react';
+
 
 const packages = [
     {
