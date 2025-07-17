@@ -121,10 +121,6 @@ const App = () => {
                 path="/admin2"
               >
                 <Route index element={<AdminIndex />}/>
-                {/* <Route path='consulations' element={<AdminConsulations />}/>
-                <Route path='trips' element={<AdminTrips />}/>
-                <Route path='jobs' element={<AdminJobs />}/>
-                <Route path='calendar' element={<AdminCalendar />}/> */}
                 <Route path='createTrip' element={<CreateTrip />}/>
               </Route>
               <Route path='/createTrip' element={<CreateTrip />}/>
