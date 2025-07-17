@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Plus, Filter, MoreHorizontal, Star, StarOff, User, Phone, Mail, Calendar, GraduationCap, Briefcase, Globe, Users } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Filter, MoreHorizontal, Star, StarOff, User, Phone, Mail, Calendar, GraduationCap, Briefcase, Globe, Users } from 'lucide-react';
 
 interface Applicant {
     id: string;

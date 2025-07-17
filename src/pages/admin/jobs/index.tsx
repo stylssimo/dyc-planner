@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Search, Plus, MapPin, Clock, DollarSign, Filter, MoreHorizontal, Briefcase, Eye, Edit, Trash2, X, Users, Calendar, GraduationCap, Building } from 'lucide-react';
 import { mockJobsData, type Job } from './components/mockData';
 

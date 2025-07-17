@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, ChevronLeft, ChevronRight, Upload, X } from 'lucide-react';
+import { ArrowLeft, Plus, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface TripFormData {

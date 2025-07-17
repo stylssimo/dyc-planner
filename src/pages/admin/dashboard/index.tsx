@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
-import { Search, Plus, Users, MapPin, Calendar, DollarSign, Filter, MoreHorizontal } from 'lucide-react';
+import {  MapPin, Calendar, DollarSign, MoreHorizontal } from 'lucide-react';
 
 
 const AdminDashboard = () => {
@@ -29,7 +27,7 @@ const AdminDashboard = () => {
       };
 
 
-    const getStatusColor = (status) => {
+    const getStatusColor = (status: string) => {
         switch (status) {
         case 'Active': return 'bg-green-100 text-green-800';
         case 'Consulted': return 'bg-green-500 text-white';
@@ -38,9 +36,6 @@ const AdminDashboard = () => {
         }
     };
     
-    const [refreshKey, setRefreshKey] = useState(0);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">

@@ -1,11 +1,9 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Plus, Users, MapPin, Calendar, DollarSign, Filter, MoreHorizontal, Eye, Edit } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Search, Plus, Users, MapPin, Filter, MoreHorizontal, Eye, Edit } from 'lucide-react';
 import { mockTripData, type TripTableRow } from './components/mockData';
-import { useNavigate } from 'react-router-dom';
 
 const AdminTrips = () => {
-    const navigate = useNavigate();
-    const [tripsData, setTripsData] = useState<TripTableRow[]>(mockTripData);
+    const [tripsData] = useState<TripTableRow[]>(mockTripData);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('All');
     const [continentFilter, setContinentFilter] = useState<string>('All Continents');

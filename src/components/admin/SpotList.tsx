@@ -36,11 +36,11 @@ const SpotList = ({ tripId, onChange }: Props) => {
         fetchSpots();
     }, []);
 
-    const handleDelete = async (id: string) => {
-        await deleteDoc(doc(db, 'spots', id));
-        await fetchSpots();
-        onChange();
-    };
+    // const handleDelete = async (id: string) => {
+    //     await deleteDoc(doc(db, 'spots', id));
+    //     await fetchSpots();
+    //     onChange();
+    // };
 
     const handleEdit = (spot: Spot) => {
         setEditingSpot(spot);

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 
 type EventType = 'appointment' | 'meeting' | 'personal' | 'interview' | 'task' | 'event' | 'holiday' | 'travel';
 
@@ -37,7 +36,6 @@ const AdminCalendar = () => {
         { date: 31, events: [{ title: 'Learn something new', type: 'personal' }] }
     ];
     
-    const [refreshKey, setRefreshKey] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentView, setCurrentView] = useState<'month' | 'week' | 'year'>('month');
     const [currentDate, setCurrentDate] = useState(new Date(2025, 2, 1)); // March 2025

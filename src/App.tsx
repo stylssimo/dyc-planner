@@ -11,10 +11,6 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import Navbar from './components/Navbar';
-import AdminConsulations from './pages/admin/consulations';
-import AdminTrips from './pages/admin/trips';
-import AdminJobs from './pages/admin/jobs';
-import AdminCalendar from './pages/admin/calendar';
 import AdminIndex from './pages/admin';
 import CreateTrip from './pages/CreateTrip';
 

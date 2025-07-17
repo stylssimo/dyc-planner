@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Plus, Users, MapPin, Calendar, DollarSign, Filter, MoreHorizontal, X } from 'lucide-react';
+import { Search, Users, Filter, MoreHorizontal, X } from 'lucide-react';
 import { mockTableData, type TableRow } from './components/mockData';
 
 interface InviteFormData {
@@ -11,7 +11,7 @@ interface InviteFormData {
 }
 
 const TravelDashboard = () => {
-  const [consultationsData, setConsultationsData] = useState<TableRow[]>(mockTableData);
+  const [consultationsData] = useState<TableRow[]>(mockTableData);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [tripFilter, setTripFilter] = useState<string>('All Trips');
