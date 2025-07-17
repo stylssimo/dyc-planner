@@ -1,7 +1,7 @@
 // src/components/Navbar.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, Home, Info, Globe, User, LogIn, LayoutDashboard, ShieldCheck, Package, Settings, Handshake, Menu } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, Globe, User, LogIn, LayoutDashboard, ShieldCheck, Package, Handshake, Menu, Calendar } from 'lucide-react';
 
 interface NavbarProps {
     isLoggedIn: boolean;
@@ -49,13 +49,16 @@ const Navbar: React.FC<NavbarProps> = ({
     };
 
     const menuItems = [
-        { label: t('nav.home'), icon: <Home size={20} />, href: '/' },
-        { label: t('nav.about'), icon: <Info size={20} />, href: '/about' },
-        { label: t('nav.packages'), icon: <Package size={20} />, href: '/packages' },
-        { label: t('nav.services'), icon: <Settings size={20} />, href: '/services' },
-        { label: t('nav.partners'), icon: <Handshake size={20} />, href: '/partners' },
-        { label: t('nav.dashboard'), icon: <LayoutDashboard size={20} />, href: '/dashboard', auth: true },
-        { label: t('nav.admin'), icon: <ShieldCheck size={20} />, href: '/admin', admin: true },
+        // { label: t('nav.home'), icon: <Home size={20} />, href: '/' },
+        { label: t('nav.dashboard'), icon: <LayoutDashboard size={20} />, href: '/admin2/dashboard' },
+        { label: t('nav.consultations'), icon: <Info size={20} />, href: '/admin2/consultations' },
+        { label: t('nav.trips'), icon: <Package size={20} />, href: '/admin2/trips' },
+        { label: t('nav.jobs'), icon: <Handshake size={20} />, href: '/admin2/jobs' },
+        { label: t('nav.cv'), icon: <Handshake size={20} />, href: '/admin2/cv' },
+        { label: t('nav.calendar'), icon: <Calendar size={20} />, href: '/admin2/calendar' },
+        // { label: t('nav.createTrip'), icon: <Plus size={20} />, href: '/admin2/trips/create' },
+        { label: t('nav.dashboard'), icon: <LayoutDashboard size={20} />, href: '/admin2/dashboard', auth: true },
+        { label: t('nav.admin'), icon: <ShieldCheck size={20} />, href: '/admin2/admin', admin: true },
     ];
 
     return (

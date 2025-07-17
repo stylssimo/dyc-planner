@@ -17,13 +17,15 @@ i18n.use(initReactI18next).init({
                 quickLinks: "Quick Links",
                 nav: {
                     home: "Home",
-                    about: "About Us",
-                    packages: "Packages",
-                    services: "Services",
-                    partners: "Partners",
-                    dashboard: "User Dashboard",
-                    admin: "Admin Dashboard",
-                    language: "Language"
+                    consultations: "Consultations",
+                    trips: "Trips",
+                    jobs: "Jobs",
+                    cv: "CV",
+                    dashboard: "Dashboard",
+                    admin: "Admin",
+                    language: "Language",
+                    createTrip: "Create Trip",
+                    calendar: "Calendar"
                 },
                 searchBar: {
                     introText: "Let one of our expert Trip Planners craft your ideal journey, free of charge!",
@@ -91,9 +93,15 @@ i18n.use(initReactI18next).init({
                     packages: "Аяллын багц",
                     services: "Үйлчилгээ",
                     partners: "Хамтрагчид",
+                    consultations: "Асуулт",
+                    trips: "Аялл",
+                    jobs: "Ажлууд",
+                    cv: "Хувийн бүтээгдэхүүн",
                     dashboard: "Хэрэглэгчийн самбар",
                     admin: "Админ самбар",
-                    language: "Хэл"
+                    language: "Хэл",
+                    createTrip: "Аяллаа үүсгэх",
+                    calendar: "Календар"
                 },
                 searchBar: {
                     introText: "Манай аялал төлөвлөгчдөөр мөрөөдлийн аяллаа үнэгүй төлөвлүүлээрэй!",

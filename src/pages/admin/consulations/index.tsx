@@ -10,7 +10,7 @@ interface InviteFormData {
   time: string;
 }
 
-const TravelDashboard = () => {
+const AdminCons = () => {
   const [consultationsData] = useState<TableRow[]>(mockTableData);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -292,4 +292,4 @@ const TravelDashboard = () => {
   );
 };
 
-export default TravelDashboard;
+export default AdminCons;

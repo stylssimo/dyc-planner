@@ -5,7 +5,7 @@ export type Job = {
     company: string;
     location: string;
     type: 'Full-time' | 'Part-time' | 'Contract' | 'Remote';
-    status: 'Active' | 'Draft' | 'Closed' | 'Paused';
+    status: 'Active' | 'Draft' | 'Closed' | 'Paused' | 'Archived';
     description: string;
     requirements: string[];
     responsibilities: string[];
