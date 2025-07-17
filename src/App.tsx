@@ -11,6 +11,12 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import Navbar from './components/Navbar';
+import AdminConsulations from './pages/admin/consulations';
+import AdminTrips from './pages/admin/trips';
+import AdminJobs from './pages/admin/jobs';
+import AdminCalendar from './pages/admin/calendar';
+import AdminIndex from './pages/admin';
+import CreateTrip from './pages/CreateTrip';
 
 
 const App = () => {
@@ -110,6 +116,18 @@ const App = () => {
                   )
                 }
               />
+              <Route
+                // element={<AdminIndex />}
+                path="/admin2"
+              >
+                <Route index element={<AdminIndex />}/>
+                {/* <Route path='consulations' element={<AdminConsulations />}/>
+                <Route path='trips' element={<AdminTrips />}/>
+                <Route path='jobs' element={<AdminJobs />}/>
+                <Route path='calendar' element={<AdminCalendar />}/> */}
+                <Route path='createTrip' element={<CreateTrip />}/>
+              </Route>
+              <Route path='/createTrip' element={<CreateTrip />}/>
               <Route
                 path="/"
                 element={
