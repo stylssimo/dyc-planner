@@ -377,7 +377,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
             onClick={handleGoogleAuth}
             className="w-full bg-white border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center space-x-3 mb-6"
           >
-            <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
+            <img src="/icons8-google.svg" alt="Google" className="w-5 h-5" />
             <span className="font-medium text-sm md:text-base">
               {authMode === 'login' ? 'Sign in with Google' : 'Sign up with Google'}
             </span>
