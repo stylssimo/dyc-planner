@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, MapPin, Clock, DollarSign, Briefcase, Eye, X, Users, Calendar, GraduationCap, Building } from 'lucide-react';
-import type { Job } from '../../admin/jobs/components/mockData';
+import { Search, MapPin, Clock, DollarSign, Briefcase, Eye, X, Users, Calendar, GraduationCap, Building, Send, Check } from 'lucide-react';
+import type { Job } from './components/mockData';
 import { db } from '../../../firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, getDoc, addDoc, setDoc, where } from 'firebase/firestore';
+import { useAuth } from '../../../contexts/AuthContext';
 
 // Types for modal states
 type ModalType = 'create' | 'view' | 'edit' | 'delete' | null;
@@ -45,10 +46,15 @@ interface ModalProps {
   formatSalary: (job: Job) => string;
   formatDate: (dateString: string) => string;
   getStatusColor: (status: string) => string;
+  sendCV: (job: Job) => Promise<void>;
 }
 
-function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getStatusColor }: Pick<ModalProps, 'selectedJob' | 'closeModal' | 'formatSalary' | 'formatDate' | 'getStatusColor'>) {
+function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getStatusColor, sendCV, sendingJobIds }: Pick<ModalProps, 'selectedJob' | 'closeModal' | 'formatSalary' | 'formatDate' | 'getStatusColor' | 'sendCV'> & { sendingJobIds: Set<string> }) {
     if (!selectedJob) return null;
+
+    const handleSendCV = async () => {
+        await sendCV(selectedJob);
+    };
     
     return (
         <div className="p-6">
@@ -155,6 +161,34 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
                             </p>
                         </div>
                     </div>
+
+                    <div className="bg-blue-50 rounded-lg p-4">
+                        <h3 className="font-semibold mb-3 text-blue-800">Apply Now</h3>
+                        <button
+                            onClick={handleSendCV}
+                            disabled={sendingJobIds.has(selectedJob.id)}
+                            className={`w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-colors ${
+                                sendingJobIds.has(selectedJob.id) 
+                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            }`}
+                        >
+                            {sendingJobIds.has(selectedJob.id) ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500 mr-2"></div>
+                                    Sending...
+                                </>
+                            ) : (
+                                <>
+                                    <Send className="w-4 h-4 mr-2" />
+                                    Send my CV
+                                </>
+                            )}
+                        </button>
+                        <p className="text-xs text-gray-600 mt-2 text-center">
+                            Your CV will be sent directly to the employer
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -169,10 +203,42 @@ const JobsPage = () => {
     const [statusFilter] = useState<string>('All');
     const [typeFilter, setTypeFilter] = useState<string>('All');
     const [departmentFilter] = useState<string>('All');
-    
+    const [sendingJobIds, setSendingJobIds] = useState<Set<string>>(new Set());
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
+    const [appliedJobs, setAppliedJobs] = useState<Job[]>([]);
     // Modal states
     const [currentModal, setCurrentModal] = useState<ModalType>(null);
     const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+
+    const { user } = useAuth();
+
+    const fetchApplications = async () => {
+        if (!user?.email) return;
+        
+        try {
+            // Query the jobApplications subcollection under the user document
+            const applicationsRef = collection(db, 'users', user.email, 'jobApplications');
+            const querySnapshot = await getDocs(applicationsRef);
+            
+            const jobIds: string[] = [];
+            const appliedJobsHolder: Job[] = [];
+            querySnapshot.docs.forEach(doc => {
+                const data = doc.data();
+                if (data.jobId) {
+                    jobIds.push(data.jobId);
+                    appliedJobsHolder.push(data as Job);
+                }
+            });
+    
+            setAppliedJobIds(jobIds);
+            setAppliedJobs(appliedJobsHolder);
+
+            console.log(appliedJobsHolder)
+        } catch (error) {
+            console.error('Error fetching applications:', error);
+        }
+    };
 
     useEffect(() => {
         const fetchJobs = async () => {
@@ -196,6 +262,22 @@ const JobsPage = () => {
                 });
                 
                 setJobs(jobsData);
+
+                const applicationsRef = collection(db, 'users', user?.email || '', 'jobApplications');
+                const applicationsQuerySnapshot = await getDocs(applicationsRef);
+                
+                const jobIds: string[] = [];
+                const appliedJobsHolder: Job[] = [];
+                applicationsQuerySnapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    if (data.jobId) {
+                        jobIds.push(data.jobId);
+                        appliedJobsHolder.push(data as Job);
+                    }
+                });
+        
+                setAppliedJobIds(jobIds);
+                setAppliedJobs(appliedJobsHolder);
             } catch (err) {
                 console.error('Error fetching jobs:', err);
                 setError('Failed to load jobs. Please try again.');
@@ -205,7 +287,98 @@ const JobsPage = () => {
         };
 
         fetchJobs();
+        fetchApplications();
     }, []);
+
+    // Clear success message after 5 seconds
+    useEffect(() => {
+        if (successMessage) {
+            const timer = setTimeout(() => {
+                setSuccessMessage(null);
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage]);
+
+    // CV sending functionality
+    const sendCV = async (job: Job) => {
+        if (!user?.email) {
+            setError('You must be logged in to apply for jobs.');
+            return;
+        }
+    
+        try {
+            // Add job ID to sending state
+            setSendingJobIds(prev => new Set(prev).add(job.id));
+            setError(null);
+    
+            // Get user's CV data
+            const userDocRef = doc(db, 'users', user.email);
+            const userDocSnap = await getDoc(userDocRef);
+    
+            if (!userDocSnap.exists()) {
+                throw new Error('User profile not found. Please complete your profile first.');
+            }
+    
+            const userData = userDocSnap.data();
+            const cvData = userData.CV;
+    
+            if (!cvData) {
+                throw new Error('CV not found. Please upload your CV in your profile first.');
+            }
+    
+            // Check if already applied to avoid duplicates
+            const jobApplicationsRef = collection(db, 'users', user.email, 'jobApplications');
+            const existingApplicationQuery = query(jobApplicationsRef, where('jobId', '==', job.id));
+            const existingApplicationSnap = await getDocs(existingApplicationQuery);
+    
+            if (!existingApplicationSnap.empty) {
+                throw new Error('You have already applied for this job.');
+            }
+    
+            // Prepare application data for CV collection (for admin view)
+            const applicationData = {
+                jobId: job.id,
+                jobTitle: job.title,
+                companyName: job.company,
+                applicantEmail: user.email,
+                applicantName: user.name || user.email, // Use displayName if available
+                applicantCV: cvData,
+                appliedAt: new Date().toISOString(),
+                status: 'Pending',
+                isStarred: false, // CV collection specific field
+                reviewedAt: null,
+                notes: ''
+            };
+    
+            // Store in CV collection (for admin view)
+            const cvCollectionRef = collection(db, 'cv');
+            await addDoc(cvCollectionRef, applicationData);
+
+            // Store in user's jobApplications subcollection - THIS IS THE KEY FIX
+            await setDoc(doc(db, 'users', user.email, 'jobApplications', job.id), applicationData);    
+            setSuccessMessage(`Successfully applied for ${job.title} at ${job.company}!`);
+            
+            // Refresh the applied jobs list
+            await fetchApplications();
+            
+            // Close modal if open
+            if (currentModal === 'view') {
+                closeModal();
+            }
+    
+        } catch (err) {
+            console.error('Error sending CV:', err);
+            setError(err instanceof Error ? err.message : 'Failed to send CV. Please try again.');
+        } finally {
+            // Remove job ID from sending state
+            setSendingJobIds(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(job.id);
+                return newSet;
+            });
+        }
+    };
 
     // Color utilities
     const getTypeColor = (type: string) => {
@@ -322,6 +495,32 @@ const JobsPage = () => {
         <>
             <div className="p-6 bg-gray-50 min-h-screen">
                 <div className="max-w-7xl mx-auto">
+                    {/* Success Message */}
+                    {successMessage && (
+                        <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center">
+                            <div className="flex-1">{successMessage}</div>
+                            <button 
+                                onClick={() => setSuccessMessage(null)}
+                                className="text-green-700 hover:text-green-900"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center">
+                            <div className="flex-1">{error}</div>
+                            <button 
+                                onClick={() => setError(null)}
+                                className="text-red-700 hover:text-red-900"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+
                     {/* Search and Filters */}
                     <div className="flex items-center space-x-4 mb-6">
                         <div className="flex-1 relative">
@@ -369,6 +568,33 @@ const JobsPage = () => {
                                                         <h3 className="text-xl font-semibold text-blue-600 ml-2">{job.company}</h3>
                                                     </div>
                                                     <div className="flex items-center space-x-2">
+                                                        <button 
+                                                            onClick={() => sendCV(job)}
+                                                            disabled={sendingJobIds.has(job.id) || appliedJobIds.includes(job.id)}
+                                                            className={`flex items-center px-3 py-1 text-sm rounded-lg font-medium transition-colors ${
+                                                                sendingJobIds.has(job.id) || appliedJobIds.includes(job.id)
+                                                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                                    : 'bg-green-600 hover:bg-green-700 text-white'
+                                                            }`}
+                                                        >
+                                                            {sendingJobIds.has(job.id) ? (
+                                                                <>
+                                                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-500 mr-1"></div>
+                                                                    Sending...
+                                                                </>
+                                                            ) : 
+                                                            appliedJobIds.includes(job.id) ? (
+                                                                <>
+                                                                    <Check className="w-3 h-3 mr-1" />  
+                                                                    {appliedJobs.find(appliedJob => appliedJob?.jobId === job.id)?.status || 'Applied'}
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Send className="w-3 h-3 mr-1" />
+                                                                    Apply
+                                                                </>
+                                                            )}
+                                                        </button>
                                                         <button 
                                                             onClick={() => openViewModal('view', job)}
                                                             className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
@@ -462,6 +688,8 @@ const JobsPage = () => {
                                 formatSalary={formatSalary}
                                 formatDate={formatDate}
                                 getStatusColor={getStatusColor}
+                                sendCV={sendCV}
+                                sendingJobIds={sendingJobIds}
                             />
                         )}
                     </div>

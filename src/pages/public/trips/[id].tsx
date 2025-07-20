@@ -48,6 +48,32 @@ interface TripData {
   updatedAt?: string;
 }
 
+const PictureModal = ({ isOpen, onClose, imageUrl }: { isOpen: boolean, onClose: () => void, imageUrl: string }) => {
+  if (!isOpen) return null;
+  return (
+    <>
+    {isOpen && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+      ></div>
+      <div className="flex items-center justify-center">
+        <div className="relative bg-white rounded-lg p-5 shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <img 
+            src={imageUrl} 
+            alt="Trip Image" 
+            className="w-full h-full object-contain"
+          />
+        </div>
+      </div>
+    </div>
+    )}
+    </>
+  );
+};
+
 const ConsultationDateModal = ({ isOpen, onClose, onSubmit, tripName }: { isOpen: boolean, onClose: () => void, onSubmit: (data: { date: string, time: string, notes: string }) => void, tripName: string }) => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
@@ -295,7 +321,8 @@ const TripDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [showConsultationModal, setShowConsultationModal] = useState(false);
-  
+  const [showPictureModal, setShowPictureModal] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState('');
   // State
   const [tripData, setTripData] = useState<TripData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -346,7 +373,7 @@ const TripDetails = () => {
         tripId: id,
         userEmail: user?.email || 'Not available',
         userName: user?.name || 'Not available',
-        status: 'pending',
+        status: 'Pending',
         tripName: tripData?.formData.travelName || 'Not available',
         tripPrice: tripData?.formData.pricePoint || 'Not available',
         tripStartDate: tripData?.formData.startDate || 'Not available',
@@ -532,11 +559,8 @@ const TripDetails = () => {
                                 alt={`${activity.title} - Image ${index + 1}`}
                                 className="w-full h-30 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
                                 onClick={() => {
-                                  // Open image in new tab
-                                  const newWindow = window.open();
-                                  if (newWindow) {
-                                    newWindow.document.write(`<img src="${getImageUrl(image)}" style="max-width:100%;height:auto;" />`);
-                                  }
+                                  setSelectedImageUrl(image);
+                                  setShowPictureModal(true);
                                 }}
                               />
                             ))}
@@ -556,6 +580,11 @@ const TripDetails = () => {
         onClose={() => setShowConsultationModal(false)}
         onSubmit={handleConsultationSubmit}
         tripName={formData?.travelName}
+      />
+      <PictureModal 
+        isOpen={showPictureModal}
+        onClose={() => setShowPictureModal(false)}
+        imageUrl={selectedImageUrl}
       />
     </div>
   );

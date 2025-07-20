@@ -1,7 +1,7 @@
 // src/components/Navbar.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, Info, Globe, User, LogIn, LayoutDashboard, ShieldCheck, Package, Handshake, Menu, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, Globe, User, LogIn, LayoutDashboard, Package, Handshake, Menu, Calendar } from 'lucide-react';
 
 interface NavbarProps {
     isLoggedIn: boolean;
@@ -57,8 +57,7 @@ const Navbar: React.FC<NavbarProps> = ({
         { label: t('nav.cv'), icon: <Handshake size={20} />, href: '/admin/cv' },
         { label: t('nav.calendar'), icon: <Calendar size={20} />, href: '/admin/calendar' },
         // { label: t('nav.createTrip'), icon: <Plus size={20} />, href: '/admin/trips/create' },
-        { label: t('nav.dashboard'), icon: <LayoutDashboard size={20} />, href: '/admin/dashboard', auth: true },
-        { label: t('nav.admin'), icon: <ShieldCheck size={20} />, href: '/admin/admin', admin: true },
+        // { label: t('nav.admin'), icon: <ShieldCheck size={20} />, href: '/admin/admin', admin: true },
     ];
 
     return (
@@ -68,7 +67,10 @@ const Navbar: React.FC<NavbarProps> = ({
                 style={{ width: isSidebarCollapsed ? '80px' : '250px' }}>
                 <div>
                     <div className="flex items-center justify-between p-4 border-b">
-                        <span className="font-bold text-blue-700 text-lg">{!isSidebarCollapsed && 'DYC'}</span>
+                        <span className="font-bold text-blue-700 text-lg flex items-center gap-2">
+                            <img src="/logo.png" alt="DYC" className="w-6 h-6" />
+                            {!isSidebarCollapsed && 'DYC'}
+                        </span>
                         <button onClick={toggleSidebar} className="text-gray-500">
                             {isSidebarCollapsed ? <ChevronRight /> : <ChevronLeft />}
                         </button>
@@ -76,8 +78,8 @@ const Navbar: React.FC<NavbarProps> = ({
 
                     <nav className="flex flex-col gap-2 p-4">
                         {menuItems.map((item, idx) => {
-                            if (item.auth && !isLoggedIn) return null;
-                            if (item.admin && loggedInUser?.role !== 'admin') return null;
+                            // if (item.auth && !isLoggedIn) return null;
+                            // if (item.admin && loggedInUser?.role !== 'admin') return null;
                             return (
                                 <a
                                     key={idx}
@@ -178,8 +180,8 @@ const Navbar: React.FC<NavbarProps> = ({
                         </div>
                         <nav className="flex flex-col gap-2 p-4">
                             {menuItems.map((item, idx) => {
-                                if (item.auth && !isLoggedIn) return null;
-                                if (item.admin && loggedInUser?.role !== 'admin') return null;
+                                // if (item.auth && !isLoggedIn) return null;
+                                // if (item.admin && loggedInUser?.role !== 'admin') return null;
                                 return (
                                     <a key={idx} href={item.href} className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md">
                                         {item.icon}
