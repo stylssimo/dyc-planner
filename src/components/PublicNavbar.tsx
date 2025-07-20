@@ -182,7 +182,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
       {/* Navigation */}
       <nav className={`${navClasses} ${className}`}>
         <div className={logoClasses}>
-          <img src="/public/logo.png" alt="DYC" className="w-10 h-10" />
+          <img src="/logo.png" alt="DYC" className="w-10 h-10" />
           <span>
             DYC
           </span>
