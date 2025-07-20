@@ -346,6 +346,11 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
         </div>
       </div>
 
+      {/* Auth Form Backdrop */}
+      <div className={`fixed inset-0 bg-black/50 transition-opacity duration-700 ease-in-out z-40 ${
+        showAuthForm ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`} />
+
       {/* Animated Auth Form */}
       <div className={`fixed right-0 top-0 h-full w-full md:w-96 bg-white/95 backdrop-blur-lg transform transition-all duration-700 ease-in-out z-50 ${
         showAuthForm ? 'translate-x-0' : 'translate-x-full'
