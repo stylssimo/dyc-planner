@@ -21,6 +21,8 @@ import TripDetails from './pages/public/trips/[id]';
 import JobsPage from './pages/public/jobs';
 import PublicNavbar from './components/PublicNavbar';
 import { AuthProvider } from './contexts/AuthContext';
+import UserCV from './pages/public/cv';
+import AdminCVView from './pages/admin/cv/pages/view';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -153,7 +155,10 @@ const App = () => {
                     <Route path='edit/:id' element={<EditTrip />}/>
                   </Route>
                   <Route path='jobs' element={<AdminJobs />}/>
-                  <Route path='cv' element={<AdminCV />}/>
+                  <Route path='cv'>
+                    <Route index element={<AdminCV />}/>
+                    <Route path='view/:id' element={<AdminCVView />}/>
+                  </Route>
                   <Route path='calendar' element={<AdminCalendar />}/>
                 </Route>
 
@@ -164,6 +169,7 @@ const App = () => {
                   <Route path="trips" element={<TripsPage />} />
                   <Route path="trip/:id" element={<TripDetails />} />
                   <Route path="jobs" element={<JobsPage />} />
+                  <Route path="cv" element={<UserCV />} />
                 </Route>
               </Routes>
             ) : (

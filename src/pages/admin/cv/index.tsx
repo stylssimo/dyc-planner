@@ -191,8 +191,7 @@ const AdminCV = () => {
     });
 
     const handleViewProfile = (applicantId: string) => {
-        // TODO: Implement view profile functionality
-        console.log('View profile:', applicantId);
+        window.open(`/admin/cv/view/${applicantId}`, '_blank');
     };
 
     const handleUpdateStatus = (applicantId: string, newStatus: string) => {

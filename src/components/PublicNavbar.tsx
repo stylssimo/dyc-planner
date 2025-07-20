@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { X, ChevronDown } from 'lucide-react';
 import { auth, provider } from '../firebase';
 import { signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -19,14 +19,39 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
   const [showAuthForm, setShowAuthForm] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
   
+  // User dropdown state
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
   // Email auth state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowUserDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleLogout = async () => {
     await signOut(auth);
     setUser(null);
+    setShowUserDropdown(false);
+  };
+
+  const handleMyCVClick = () => {
+    // Navigate to CV page or open CV modal
+    window.open('/cv', '_blank');
+    setShowUserDropdown(false);
   };
 
   const handleLandingClick = () => {
@@ -139,19 +164,43 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
           <button onClick={handleTripsClick} className="hover:text-gray-300 transition-colors">Trips</button>
           <button onClick={handleJobsClick} className="hover:text-gray-300 transition-colors">Jobs</button>
           {user ? (
-            <div className="flex items-center space-x-4">
-              <img 
-                src={user.picture || ''} 
-                alt={user.name || ''} 
-                className="w-8 h-8 rounded-full border-2 border-current"
-              />
-              <span className="text-sm">Welcome, {user.name?.split(' ')[0]}</span>
-              <button 
-                onClick={handleLogout} 
-                className="hover:text-gray-300 transition-colors text-sm"
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowUserDropdown(!showUserDropdown)}
+                className="flex items-center space-x-2 hover:text-gray-300 transition-colors"
               >
-                Logout
+                <img 
+                  src={user.picture || ''} 
+                  alt={user.name || ''} 
+                  className="w-8 h-8 rounded-full border-2 border-current"
+                />
+                <span className="text-sm">{user.name?.split(' ')[0]}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showUserDropdown ? 'rotate-180' : ''}`} />
               </button>
+              
+              {/* User Dropdown Menu */}
+              <div className={`absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 transition-all duration-200 transform origin-top-right ${
+                showUserDropdown 
+                  ? 'opacity-100 scale-100 translate-y-0' 
+                  : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+              }`}>
+                <div className="px-4 py-2 border-b border-gray-100">
+                  <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                  <p className="text-xs text-gray-500">{user.email}</p>
+                </div>
+                <button
+                  onClick={handleMyCVClick}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center space-x-2"
+                >
+                  <span>My CV</span>
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           ) : (
             <>
@@ -214,7 +263,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
               {authError}
             </div>
-          )}
+            )}
 
           {/* Email Form */}
           <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
@@ -274,4 +323,4 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
   );
 };
 
-export default PublicNavbar; 
+export default PublicNavbar;
