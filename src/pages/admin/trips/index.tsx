@@ -136,15 +136,15 @@ const AdminTrips = () => {
     }, [tripsData, searchTerm, statusFilter, continentFilter]);
 
     const handleCreateTrip = () => {
-        window.open('/admin2/trips/create', '_blank');
+        window.open('/admin/trips/create', '_blank');
     };
 
 	const handleViewTrip = (id: string) => {
-		window.open(`/admin2/trips/view/${id}`, '_blank');
+		window.open(`/admin/trips/view/${id}`, '_blank');
 	};
 
 	const handleEditTrip = (id: string) => {
-		window.open(`/admin2/trips/edit/${id}`, '_blank');
+		window.open(`/admin/trips/edit/${id}`, '_blank');
 	};
 
     if (loading) {

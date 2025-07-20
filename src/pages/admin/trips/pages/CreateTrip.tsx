@@ -429,7 +429,7 @@ const CreateTrip = () => {
 
     alert('Trip created successfully!');
     localStorage.removeItem(STORAGE_KEY);
-    navigate('/admin2/trips');
+    navigate('/admin/trips');
   };
 
   const clearAllData = () => {
@@ -489,7 +489,7 @@ const CreateTrip = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => navigate('/admin2/trips')}
+                onClick={() => navigate('/admin/trips')}
                 className="flex items-center text-gray-600 hover:text-gray-800"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />

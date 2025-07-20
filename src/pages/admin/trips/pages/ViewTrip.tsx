@@ -176,7 +176,7 @@ const ViewTrip = () => {
         <div className="text-center">
           <p className="text-red-600 mb-4">{error || 'Trip not found'}</p>
           <button 
-            onClick={() => navigate('/admin2/trips')}
+            onClick={() => navigate('/admin/trips')}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
             Back to Trips
@@ -195,7 +195,7 @@ const ViewTrip = () => {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <button
-            onClick={() => navigate('/admin2/trips')}
+            onClick={() => navigate('/admin/trips')}
             className="flex items-center text-gray-600 hover:text-gray-800 mb-2"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -444,7 +444,7 @@ const ViewTrip = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
               <div className="space-y-3">
                 <button
-                  onClick={() => navigate(`/admin2/trips/edit/${id}`)}
+                  onClick={() => navigate(`/admin/trips/edit/${id}`)}
                   className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Edit Trip

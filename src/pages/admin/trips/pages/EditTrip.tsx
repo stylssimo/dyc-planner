@@ -413,7 +413,7 @@ const EditTrip = () => {
       console.log('Trip updated successfully with ID: ', id);
       
       alert('Trip updated successfully!');
-      navigate('/admin2/trips');
+      navigate('/admin/trips');
     } catch (error) {
       console.error('Error updating trip:', error);
       alert('Failed to update trip. Please try again.');
@@ -441,7 +441,7 @@ const EditTrip = () => {
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <button 
-            onClick={() => navigate('/admin2/trips')}
+            onClick={() => navigate('/admin/trips')}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
             Back to Trips
@@ -459,7 +459,7 @@ const EditTrip = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => navigate('/admin2/trips')}
+                onClick={() => navigate('/admin/trips')}
                 className="flex items-center text-gray-600 hover:text-gray-800"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
