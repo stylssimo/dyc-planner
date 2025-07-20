@@ -172,7 +172,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
 
   const navClasses = transparent 
     ? `absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-6 transition-all duration-700 ease-in-out ${showAuthForm ? 'z-0' : 'z-20'}`
-    : `relative bg-white shadow-sm z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-6`;
+    : `relative bg-white z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-6`;
 
   const textClasses = transparent ? 'text-white' : 'text-gray-900';
   const logoClasses = transparent ? 'text-white text-xl md:text-2xl font-bold flex items-center' : 'text-blue-600 text-xl md:text-2xl font-bold flex items-center';
@@ -209,7 +209,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
               </button>
               
               {/* User Dropdown Menu */}
-              <div className={`absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 transition-all duration-200 transform origin-top-right ${
+              <div className={`absolute right-0 top-full mt-2 w-48 bg-white rounded-lg border border-gray-200 py-1 transition-all duration-200 transform origin-top-right ${
                 showUserDropdown 
                   ? 'opacity-100 scale-100 translate-y-0' 
                   : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
@@ -259,7 +259,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
       {/* Mobile Menu */}
       <div 
         ref={mobileMenuRef}
-        className={`md:hidden fixed top-0 right-0 h-full w-80 max-w-[90vw] bg-white shadow-2xl transform transition-all duration-300 ease-in-out z-50 ${
+        className={`md:hidden fixed top-0 right-0 h-full w-80 max-w-[90vw] bg-white transform transition-all duration-300 ease-in-out z-50 ${
           showMobileMenu ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -347,7 +347,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
       </div>
 
       {/* Animated Auth Form */}
-      <div className={`fixed right-0 top-0 h-full w-full md:w-96 bg-white/95 backdrop-blur-lg shadow-2xl transform transition-all duration-700 ease-in-out z-50 ${
+      <div className={`fixed right-0 top-0 h-full w-full md:w-96 bg-white/95 backdrop-blur-lg transform transition-all duration-700 ease-in-out z-50 ${
         showAuthForm ? 'translate-x-0' : 'translate-x-full'
       }`}>
         <div className="p-6 md:p-8 h-full flex flex-col justify-center">

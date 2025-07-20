@@ -71,7 +71,7 @@ const Navbar: React.FC<NavbarProps> = ({
                             <img src="/logo.png" alt="DYC" className="w-6 h-6" />
                             {!isSidebarCollapsed && 'DYC'}
                         </span>
-                        <button onClick={toggleSidebar} className="text-gray-500">
+                        <button onClick={toggleSidebar} className="text-gray-500 transition-transform duration-200 hover:scale-110">
                             {isSidebarCollapsed ? <ChevronRight /> : <ChevronLeft />}
                         </button>
                     </div>
@@ -84,10 +84,10 @@ const Navbar: React.FC<NavbarProps> = ({
                                 <a
                                     key={idx}
                                     href={item.href}
-                                    className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md"
+                                    className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md transition-colors duration-200"
                                 >
                                     {item.icon}
-                                    {!isSidebarCollapsed && <span>{item.label}</span>}
+                                    {!isSidebarCollapsed && <span className="transition-opacity duration-300">{item.label}</span>}
                                 </a>
                             );
                         })}
@@ -97,17 +97,17 @@ const Navbar: React.FC<NavbarProps> = ({
                 <div className="flex flex-col gap-2 p-4 border-t">
                     {isLoggedIn && loggedInUser?.picture && (
                         <div className="relative" ref={profileMenuRef}>
-                            <button onClick={() => setShowProfileMenu(prev => !prev)} className="flex items-center gap-2">
+                            <button onClick={() => setShowProfileMenu(prev => !prev)} className="flex items-center gap-2 transition-colors duration-200 hover:bg-gray-100 px-2 py-2 rounded-md">
                                 <img src={loggedInUser.picture} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
                                 {!isSidebarCollapsed && (
-                                    <span className="text-sm text-gray-700 truncate">{loggedInUser.name}</span>
+                                    <span className="text-sm text-gray-700 truncate transition-opacity duration-300">{loggedInUser.name}</span>
                                 )}
                             </button>
                             {showProfileMenu && (
-                                <div className="absolute bottom-12 left-0 bg-white border rounded shadow text-sm px-2 py-1 z-50 min-w-[120px]">
+                                <div className="absolute bottom-12 left-0 bg-white border rounded shadow text-sm px-2 py-1 z-50 min-w-[120px] animate-fadeIn">
                                     <button
                                         onClick={onLogout}
-                                        className="block w-full text-left px-2 py-1 hover:bg-gray-100 text-red-600"
+                                        className="block w-full text-left px-2 py-1 hover:bg-gray-100 text-red-600 transition-colors duration-150"
                                     >
                                         Logout
                                     </button>
@@ -117,31 +117,31 @@ const Navbar: React.FC<NavbarProps> = ({
                     )}
 
                     {!isLoggedIn && (
-                        <button onClick={onLoginClick} className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md">
+                        <button onClick={onLoginClick} className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md transition-colors duration-200">
                             <User size={20} />
-                            {!isSidebarCollapsed && <span>{t('loginModal.loginButton')}</span>}
+                            {!isSidebarCollapsed && <span className="transition-opacity duration-300">{t('loginModal.loginButton')}</span>}
                         </button>
                     )}
 
                     <div className="relative" ref={langMenuRef}>
                         <button
                             onClick={() => setShowLangMenu(prev => !prev)}
-                            className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md"
+                            className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md transition-colors duration-200"
                         >
                             <Globe size={20} />
-                            {!isSidebarCollapsed && <span>{t('nav.language') || 'Language'}</span>}
+                            {!isSidebarCollapsed && <span className="transition-opacity duration-300">{t('nav.language') || 'Language'}</span>}
                         </button>
                         {showLangMenu && (
-                            <div className="absolute bottom-12 left-0 bg-white border rounded shadow text-sm px-2 py-1 z-50 min-w-[120px]">
+                            <div className="absolute bottom-12 left-0 bg-white border rounded shadow text-sm px-2 py-1 z-50 min-w-[120px] animate-fadeIn">
                                 <button
                                     onClick={() => changeLanguage('en')}
-                                    className={`block w-full text-left px-2 py-1 hover:bg-gray-100 ${i18n.language === 'en' ? 'font-bold text-blue-700' : ''}`}
+                                    className={`block w-full text-left px-2 py-1 hover:bg-gray-100 transition-colors duration-150 ${i18n.language === 'en' ? 'font-bold text-blue-700' : ''}`}
                                 >
                                     English
                                 </button>
                                 <button
                                     onClick={() => changeLanguage('mn')}
-                                    className={`block w-full text-left px-2 py-1 hover:bg-gray-100 ${i18n.language === 'mn' ? 'font-bold text-blue-700' : ''}`}
+                                    className={`block w-full text-left px-2 py-1 hover:bg-gray-100 transition-colors duration-150 ${i18n.language === 'mn' ? 'font-bold text-blue-700' : ''}`}
                                 >
                                     Монгол
                                 </button>
@@ -153,58 +153,105 @@ const Navbar: React.FC<NavbarProps> = ({
 
             {/* Mobile Topbar */}
             <div className="md:hidden fixed top-0 left-0 right-0 bg-white shadow z-40 flex justify-between items-center px-4 py-2">
-                <button onClick={toggleSidebar}>
+                <button 
+                    onClick={toggleSidebar}
+                    className="transition-transform duration-200 hover:scale-110 active:scale-95"
+                >
                     {isSidebarCollapsed ? <Menu /> : <ChevronLeft />}
                 </button>
-                <span className="text-lg font-semibold text-blue-700">DYC</span>
+                <span className="text-lg font-semibold text-blue-700 flex items-center gap-2">
+                    <img src="/logo.png" alt="DYC" className="w-6 h-6" />
+                    {'DYC'}
+                </span>
                 {isLoggedIn && loggedInUser?.picture ? (
-                    <button onClick={() => setShowProfileMenu(prev => !prev)}>
+                    <button 
+                        onClick={() => setShowProfileMenu(prev => !prev)}
+                        className="transition-transform duration-200 hover:scale-110 active:scale-95"
+                    >
                         <img src={loggedInUser.picture} alt="Profile" className="w-8 h-8 rounded-full" />
                     </button>
                 ) : (
-                    <button onClick={onLoginClick}>
+                    <button 
+                        onClick={onLoginClick}
+                        className="transition-transform duration-200 hover:scale-110 active:scale-95"
+                    >
                         <LogIn size={24} />
                     </button>
                 )}
             </div>
 
             {/* Mobile Sidebar Overlay */}
-            {!isSidebarCollapsed && (
-                <div className="fixed inset-0 z-30 bg-black bg-opacity-40 md:hidden" onClick={toggleSidebar}>
-                    <div className="bg-white h-full w-64 shadow-md" onClick={e => e.stopPropagation()}>
-                        <div className="p-4 border-b flex justify-between items-center">
-                            <span className="font-bold text-blue-700 text-lg">DYC</span>
-                            <button onClick={toggleSidebar} className="text-gray-500">
-                                ✖
-                            </button>
-                        </div>
-                        <nav className="flex flex-col gap-2 p-4">
-                            {menuItems.map((item, idx) => {
-                                // if (item.auth && !isLoggedIn) return null;
-                                // if (item.admin && loggedInUser?.role !== 'admin') return null;
-                                return (
-                                    <a key={idx} href={item.href} className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md">
-                                        {item.icon}
-                                        <span>{item.label}</span>
-                                    </a>
-                                );
-                            })}
-                            <div className="mt-4 border-t pt-4">
-                                {isLoggedIn ? (
-                                    <button onClick={onLogout} className="flex items-center gap-2 text-red-600 hover:bg-red-50 px-2 py-2 rounded-md">
-                                        Logout
-                                    </button>
-                                ) : (
-                                    <button onClick={onLoginClick} className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md">
-                                        <LogIn size={20} />
-                                        <span>{t('loginModal.loginButton')}</span>
-                                    </button>
-                                )}
-                            </div>
-                        </nav>
+            <div 
+                className={`fixed inset-0 z-30 bg-black transition-opacity duration-300 md:hidden ${
+                    !isSidebarCollapsed ? 'bg-opacity-40 opacity-100' : 'bg-opacity-0 opacity-0 pointer-events-none'
+                }`}
+                onClick={toggleSidebar}
+            >
+                <div 
+                    className={`bg-white h-full w-64 shadow-xl transform transition-transform duration-300 ease-in-out ${
+                        !isSidebarCollapsed ? 'translate-x-0' : '-translate-x-full'
+                    }`}
+                    onClick={e => e.stopPropagation()}
+                >
+                    <div className="p-4 border-b flex justify-between items-center">
+                        <span className="font-bold text-blue-700 text-lg flex items-center gap-2">
+                            <img src="/logo.png" alt="DYC" className="w-6 h-6" />
+                            <span className="animate-slideInRight">DYC</span>
+                        </span>
+                        <button 
+                            onClick={toggleSidebar} 
+                            className="text-gray-500 transition-transform duration-200 hover:scale-110 hover:rotate-90"
+                        >
+                            ✖
+                        </button>
                     </div>
+                    <nav className="flex flex-col gap-2 p-4">
+                        {menuItems.map((item, idx) => {
+                            // if (item.auth && !isLoggedIn) return null;
+                            // if (item.admin && loggedInUser?.role !== 'admin') return null;
+                            return (
+                                <a 
+                                    key={idx} 
+                                    href={item.href} 
+                                    className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md transition-all duration-200 hover:translate-x-1 hover:shadow-sm"
+                                    style={{
+                                        animationDelay: `${idx * 50}ms`,
+                                        animation: !isSidebarCollapsed ? 'slideInFromLeft 0.3s ease-out forwards' : ''
+                                    }}
+                                >
+                                    <span className="transition-transform duration-200 group-hover:scale-110">{item.icon}</span>
+                                    <span>{item.label}</span>
+                                </a>
+                            );
+                        })}
+                        <div 
+                            className="mt-4 border-t pt-4"
+                            style={{
+                                animationDelay: `${menuItems.length * 50 + 100}ms`,
+                                animation: !isSidebarCollapsed ? 'slideInFromLeft 0.3s ease-out forwards' : ''
+                            }}
+                        >
+                            {isLoggedIn ? (
+                                <button 
+                                    onClick={onLogout} 
+                                    className="flex items-center gap-2 text-red-600 hover:bg-red-50 px-2 py-2 rounded-md transition-all duration-200 hover:translate-x-1 w-full"
+                                >
+                                    <span className="transition-transform duration-200 group-hover:scale-110">🚪</span>
+                                    Logout
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={onLoginClick} 
+                                    className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md transition-all duration-200 hover:translate-x-1 w-full"
+                                >
+                                    <LogIn size={20} className="transition-transform duration-200 group-hover:scale-110" />
+                                    <span>{t('loginModal.loginButton')}</span>
+                                </button>
+                            )}
+                        </div>
+                    </nav>
                 </div>
-            )}
+            </div>
         </>
     );
 };

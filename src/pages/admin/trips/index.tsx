@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Plus, Users, MapPin, Filter, MoreHorizontal, Eye, Edit } from 'lucide-react';
+import { Search, Plus, MapPin, Eye, Edit, List, Image } from 'lucide-react';
 import { type TripTableRow } from './components/mockData';
 import { db } from '../../../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
@@ -57,7 +57,7 @@ const AdminTrips = () => {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('All');
-    const [continentFilter, setContinentFilter] = useState<string>('All Continents');
+    const [continentFilter, setContinentFilter] = useState<string>('Continents');
     const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
     // Fetch trips from Firebase
@@ -80,7 +80,7 @@ const AdminTrips = () => {
                     const trip: TripTableRow = {
                         id: doc.id,
                         name: data.formData?.travelName || 'Untitled Trip',
-                        status: 'Draft', // Default status for new trips
+                        status: 'Active', // Default status for new trips
                         country: data.formData?.country || 'Unknown',
                         continent: data.formData?.continent || 'Unknown',
                         duration: calculateDuration(data.formData?.startDate, data.formData?.endDate),
@@ -118,7 +118,7 @@ const AdminTrips = () => {
     // Get unique continents for filter dropdown
     const uniqueContinents = useMemo(() => {
         const continents = tripsData.map(item => item.continent);
-        return ['All Continents', ...Array.from(new Set(continents))];
+        return ['Continents', ...Array.from(new Set(continents))];
     }, [tripsData]);
 
     // Filter and search functionality
@@ -129,7 +129,7 @@ const AdminTrips = () => {
                                  trip.description.toLowerCase().includes(searchTerm.toLowerCase());
             
             const matchesStatus = statusFilter === 'All' || trip.status === statusFilter;
-            const matchesContinent = continentFilter === 'All Continents' || trip.continent === continentFilter;
+            const matchesContinent = continentFilter === 'Continents' || trip.continent === continentFilter;
             
             return matchesSearch && matchesStatus && matchesContinent;
         });
@@ -202,7 +202,7 @@ const AdminTrips = () => {
                 onClick={handleCreateTrip}
                 className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-4 py-2 rounded-lg flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
-                <span>Create New Itinerary</span>
+                <span>Create New Trip</span>
               </button>
             </div>
 
@@ -218,9 +218,9 @@ const AdminTrips = () => {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              {/* <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                 <MoreHorizontal className="w-4 h-4" />
-              </button>
+              </button> */}
             </div>
 
             <div className="flex items-center justify-between mb-6">
@@ -231,8 +231,8 @@ const AdminTrips = () => {
                   className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="All">All Statuses</option>
                   <option value="Active">Active</option>
-                  <option value="Draft">Draft</option>
-                  <option value="Archived">Archived</option>
+                  {/* <option value="Draft">Draft</option> */}
+                  {/* <option value="Archived">Archived</option> */}
                 </select>
                 <select 
                   value={continentFilter}
@@ -242,20 +242,20 @@ const AdminTrips = () => {
                     <option key={continent} value={continent}>{continent}</option>
                   ))}
                 </select>
-                <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                {/* <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                   <Filter className="w-4 h-4" />
-                </button>
+                </button> */}
               </div>
               <div className="flex space-x-2">
                 <button 
                   onClick={() => setViewMode('cards')}
                   className={`p-2 rounded-lg ${viewMode === 'cards' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}>
-                  <MapPin className="w-4 h-4" />
+                  <Image className="w-4 h-4" />
                 </button>
                 <button 
                   onClick={() => setViewMode('table')}
                   className={`p-2 rounded-lg ${viewMode === 'table' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}>
-                  <Users className="w-4 h-4" />
+                  <List className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -322,7 +322,7 @@ const AdminTrips = () => {
                         ))}
                       </div>
                     ) : (
-                      <div className="bg-white rounded-lg shadow overflow-hidden">
+                      <div className="bg-white rounded-lg shadow overflow-scroll">
                         <table className="w-full">
                           <thead className="bg-gray-50">
                             <tr>
@@ -357,10 +357,14 @@ const AdminTrips = () => {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{formatPrice(trip.price)}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{trip.bookedCount}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                                  <button className="text-blue-600 hover:text-blue-800">
+                                  <button 
+                                    onClick={() => handleViewTrip(trip.id)}
+                                    className="text-blue-600 hover:text-blue-800">
                                     <Eye className="w-4 h-4" />
                                   </button>
-                                  <button className="text-gray-600 hover:text-gray-800">
+                                  <button 
+                                    onClick={() => handleEditTrip(trip.id)}
+                                    className="text-gray-600 hover:text-gray-800">
                                     <Edit className="w-4 h-4" />
                                   </button>
                                 </td>

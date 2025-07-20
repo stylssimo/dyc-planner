@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Users, MapPin, Search, Filter, Star, Wifi, Car, X } from 'lucide-react';
+import { Calendar, Users, MapPin, Search, Star, Wifi, Car, X } from 'lucide-react';
 import { useTrips, type PublicTrip } from '../../../hooks/useTrips';
 
 const TripsPage = () => {
@@ -101,14 +101,70 @@ const TripsPage = () => {
                 {filteredTrips.length} trip{filteredTrips.length !== 1 ? 's' : ''}
               </p>
             </div>
-            {/* Mobile Search Toggle */}
-            <button 
-              onClick={() => setShowMobileSearch(true)}
-              className="md:hidden bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700"
-            >
-              <Search className="w-5 h-5" />
-            </button>
           </div>
+          <div className="space-y-4 mt-3 md:hidden">
+              {/* Destination */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Destination</label>
+                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
+                  <MapPin className="w-5 h-5 text-gray-500" />
+                  <input 
+                    type="text" 
+                    placeholder="Search destinations, countries..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="outline-none bg-transparent text-sm flex-1"
+                  />
+                </div>
+              </div>
+
+              {/* Check-in Date */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
+                  <Calendar className="w-5 h-5 text-gray-500" />
+                  <input 
+                    type="date" 
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="outline-none bg-transparent text-sm flex-1"
+                  />
+                </div>
+              </div>
+
+              {/* Check-out Date */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
+                  <Calendar className="w-5 h-5 text-gray-500" />
+                  <input 
+                    type="date" 
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="outline-none bg-transparent text-sm flex-1"
+                  />
+                </div>
+              </div>
+
+              {/* Guests */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Guests</label>
+                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
+                  <Users className="w-5 h-5 text-gray-500" />
+                  <select 
+                    value={guests}
+                    onChange={(e) => setGuests(e.target.value)}
+                    className="outline-none bg-transparent text-sm flex-1"
+                  >
+                    <option value="1 Adult">1 Adult</option>
+                    <option value="2 Adults">2 Adults</option>
+                    <option value="3 Adults">3 Adults</option>
+                    <option value="4 Adults">4 Adults</option>
+                    <option value="Family (2+2)">Family (2+2)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
         </div>
       </div>
 
@@ -187,70 +243,6 @@ const TripsPage = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
-            <div className="space-y-4">
-              {/* Destination */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Destination</label>
-                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
-                  <MapPin className="w-5 h-5 text-gray-500" />
-                  <input 
-                    type="text" 
-                    placeholder="Search destinations, countries..." 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="outline-none bg-transparent text-sm flex-1"
-                  />
-                </div>
-              </div>
-
-              {/* Check-in Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Check-in Date</label>
-                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
-                  <Calendar className="w-5 h-5 text-gray-500" />
-                  <input 
-                    type="date" 
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="outline-none bg-transparent text-sm flex-1"
-                  />
-                </div>
-              </div>
-
-              {/* Check-out Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Check-out Date</label>
-                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
-                  <Calendar className="w-5 h-5 text-gray-500" />
-                  <input 
-                    type="date" 
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="outline-none bg-transparent text-sm flex-1"
-                  />
-                </div>
-              </div>
-
-              {/* Guests */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Guests</label>
-                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
-                  <Users className="w-5 h-5 text-gray-500" />
-                  <select 
-                    value={guests}
-                    onChange={(e) => setGuests(e.target.value)}
-                    className="outline-none bg-transparent text-sm flex-1"
-                  >
-                    <option value="1 Adult">1 Adult</option>
-                    <option value="2 Adults">2 Adults</option>
-                    <option value="3 Adults">3 Adults</option>
-                    <option value="4 Adults">4 Adults</option>
-                    <option value="Family (2+2)">Family (2+2)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
 
             {/* Mobile Search Button */}
             <button 
@@ -277,9 +269,9 @@ const TripsPage = () => {
                 <option key={continent} value={continent}>{continent}</option>
               ))}
             </select>
-            <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            {/* <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
               <Filter className="w-4 h-4" />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

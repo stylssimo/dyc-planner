@@ -52,24 +52,24 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
     if (!selectedJob) return null;
     
     return (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">{selectedJob.title}</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{selectedJob.title}</h2>
                 <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
                     <X className="w-6 h-6" />
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="lg:col-span-2 space-y-4 sm:space-y-6">
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">Job Description</h3>
-                        <p className="text-gray-700">{selectedJob.description}</p>
+                        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Job Description</h3>
+                        <p className="text-sm sm:text-base text-gray-700">{selectedJob.description}</p>
                     </div>
 
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">Requirements</h3>
-                        <ul className="list-disc list-inside space-y-1">
+                        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Requirements</h3>
+                        <ul className="list-disc list-inside space-y-1 text-sm sm:text-base">
                             {selectedJob.requirements.map((req, idx) => (
                                 <li key={idx} className="text-gray-700">{req}</li>
                             ))}
@@ -77,8 +77,8 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
                     </div>
 
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">Responsibilities</h3>
-                        <ul className="list-disc list-inside space-y-1">
+                        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Responsibilities</h3>
+                        <ul className="list-disc list-inside space-y-1 text-sm sm:text-base">
                             {selectedJob.responsibilities.map((resp, idx) => (
                                 <li key={idx} className="text-gray-700">{resp}</li>
                             ))}
@@ -86,8 +86,8 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
                     </div>
 
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">Benefits</h3>
-                        <ul className="list-disc list-inside space-y-1">
+                        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Benefits</h3>
+                        <ul className="list-disc list-inside space-y-1 text-sm sm:text-base">
                             {selectedJob.benefits.map((benefit, idx) => (
                                 <li key={idx} className="text-gray-700">{benefit}</li>
                             ))}
@@ -95,10 +95,10 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
                     </div>
 
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">Skills Required</h3>
+                        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Skills Required</h3>
                         <div className="flex flex-wrap gap-2">
                             {selectedJob.skills.map((skill, idx) => (
-                                <span key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                                <span key={idx} className="bg-blue-100 text-blue-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
                                     {skill}
                                 </span>
                             ))}
@@ -106,52 +106,52 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
                     </div>
                 </div>
 
-                <div className="space-y-6">
-                    <div className="bg-gray-50 rounded-lg p-4">
+                <div className="space-y-4 sm:space-y-6">
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
                         <h3 className="font-semibold mb-3">Job Details</h3>
-                        <div className="space-y-3 text-sm">
+                        <div className="space-y-3 text-xs sm:text-sm">
                             <div className="flex items-center">
-                                <Building className="w-4 h-4 mr-2 text-gray-500" />
+                                <Building className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.company}</span>
                             </div>
                             <div className="flex items-center">
-                                <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                                <MapPin className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.location}</span>
                             </div>
                             <div className="flex items-center">
-                                <Briefcase className="w-4 h-4 mr-2 text-gray-500" />
+                                <Briefcase className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.type}</span>
                             </div>
                             <div className="flex items-center">
-                                <Clock className="w-4 h-4 mr-2 text-gray-500" />
+                                <Clock className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.workingHours}</span>
                             </div>
                             <div className="flex items-center">
-                                <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
+                                <DollarSign className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{formatSalary(selectedJob)}</span>
                             </div>
                             <div className="flex items-center">
-                                <GraduationCap className="w-4 h-4 mr-2 text-gray-500" />
+                                <GraduationCap className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.education}</span>
                             </div>
                             <div className="flex items-center">
-                                <Users className="w-4 h-4 mr-2 text-gray-500" />
+                                <Users className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.applicationsCount} applications</span>
                             </div>
                             <div className="flex items-center">
-                                <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                                <Calendar className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>Deadline: {new Date(selectedJob.applicationDeadline).toLocaleDateString()}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
                         <h3 className="font-semibold mb-3">Status</h3>
                         <div className="space-y-2">
-                            <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(selectedJob.status)}`}>
+                            <span className={`inline-flex px-2 sm:px-3 py-1 text-xs sm:text-sm font-semibold rounded-full ${getStatusColor(selectedJob.status)}`}>
                                 {selectedJob.status}
                             </span>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs sm:text-sm text-gray-600">
                                 Posted {formatDate(selectedJob.postedDate)}
                             </p>
                         </div>
@@ -176,9 +176,9 @@ function CreateEditJobModal({
     const isEditing = currentModal === 'edit';
     
     return (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                     {isEditing ? 'Edit Job Listing' : 'Create Job Listing'}
                 </h2>
                 <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
@@ -186,58 +186,58 @@ function CreateEditJobModal({
                 </button>
             </div>
 
-            <form onSubmit={(e) => { e.preventDefault(); isEditing ? handleUpdateJob() : handleCreateJob(); }} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={(e) => { e.preventDefault(); isEditing ? handleUpdateJob() : handleCreateJob(); }} className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Job Title</label>
                         <input
                             type="text"
                             value={formData.title}
                             onChange={(e) => updateFormField('title', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Position</label>
                         <input
                             type="text"
                             value={formData.position}
                             onChange={(e) => updateFormField('position', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Company</label>
                         <input
                             type="text"
                             value={formData.company}
                             onChange={(e) => updateFormField('company', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Location</label>
                         <input
                             type="text"
                             value={formData.location}
                             onChange={(e) => updateFormField('location', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Job Type</label>
                         <select
                             value={formData.type}
                             onChange={(e) => updateFormField('type', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="Full-time">Full-time</option>
                             <option value="Part-time">Part-time</option>
@@ -247,11 +247,11 @@ function CreateEditJobModal({
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Status</label>
                         <select
                             value={formData.status}
                             onChange={(e) => updateFormField('status', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="Active">Active</option>
                             <option value="Draft">Draft</option>
@@ -262,47 +262,47 @@ function CreateEditJobModal({
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Department</label>
                         <input
                             type="text"
                             value={formData.department}
                             onChange={(e) => updateFormField('department', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Experience Level</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Experience Level</label>
                         <input
                             type="text"
                             value={formData.experienceLevel}
                             onChange={(e) => updateFormField('experienceLevel', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="e.g., 3-5 years"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Working Hours</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Working Hours</label>
                         <input
                             type="text"
                             value={formData.workingHours}
                             onChange={(e) => updateFormField('workingHours', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="e.g., 40 hours/week"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Application Deadline</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Application Deadline</label>
                         <input
                             type="date"
                             value={formData.applicationDeadline}
                             onChange={(e) => updateFormField('applicationDeadline', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
@@ -310,33 +310,33 @@ function CreateEditJobModal({
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Salary Min</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Salary Min</label>
                         <input
                             type="number"
                             value={formData.salaryMin}
                             onChange={(e) => updateFormField('salaryMin', parseInt(e.target.value))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Salary Max</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Salary Max</label>
                         <input
                             type="number"
                             value={formData.salaryMax}
                             onChange={(e) => updateFormField('salaryMax', parseInt(e.target.value))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Currency</label>
                         <select
                             value={formData.currency}
                             onChange={(e) => updateFormField('currency', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="GBP">GBP</option>
                             <option value="GBP/day">GBP/day</option>
@@ -347,23 +347,23 @@ function CreateEditJobModal({
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Job Description</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Job Description</label>
                     <textarea
                         value={formData.description}
                         onChange={(e) => updateFormField('description', e.target.value)}
                         rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         required
                     />
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Education Requirements</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Education Requirements</label>
                     <input
                         type="text"
                         value={formData.education}
                         onChange={(e) => updateFormField('education', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="e.g., Bachelor's degree in Computer Science"
                         required
                     />
@@ -372,7 +372,7 @@ function CreateEditJobModal({
                 {/* Dynamic array fields */}
                 {['requirements', 'responsibilities', 'benefits', 'skills'].map((field) => (
                     <div key={field}>
-                        <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">{field}</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 capitalize">{field}</label>
                         <div className="space-y-2">
                             {(formData[field as keyof JobFormData] as string[]).map((item, index) => (
                                 <div key={index} className="flex space-x-2">
@@ -380,7 +380,7 @@ function CreateEditJobModal({
                                         type="text"
                                         value={item}
                                         onChange={(e) => updateArrayField(field as keyof JobFormData, index, e.target.value)}
-                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="flex-1 px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder={`Enter ${field.slice(0, -1)}`}
                                     />
                                     <button
@@ -404,17 +404,17 @@ function CreateEditJobModal({
                     </div>
                 ))}
 
-                <div className="flex space-x-3 pt-4">
+                <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-4">
                     <button
                         type="button"
                         onClick={closeModal}
-                        className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                        className="w-full sm:flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
-                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        className="w-full sm:flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
                     >
                         {isEditing ? 'Update Job' : 'Create Job'}
                     </button>
@@ -428,9 +428,9 @@ function DeleteJobModal({ selectedJob, closeModal, handleDeleteJob }: Pick<Modal
     if (!selectedJob) return null;
     
     return (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Delete Job Listing</h2>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">Delete Job Listing</h2>
                 <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
                     <X className="w-6 h-6" />
                 </button>
@@ -438,32 +438,32 @@ function DeleteJobModal({ selectedJob, closeModal, handleDeleteJob }: Pick<Modal
 
             <div className="mb-6">
                 <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-                        <Trash2 className="w-6 h-6 text-red-600" />
+                    <div className="w-10 sm:w-12 h-10 sm:h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <Trash2 className="w-5 sm:w-6 h-5 sm:h-6 text-red-600" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-medium text-gray-900">Are you sure?</h3>
-                        <p className="text-gray-600">This action cannot be undone.</p>
+                        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1">Are you sure?</h3>
+                        <p className="text-sm text-gray-600">This action cannot be undone.</p>
                     </div>
                 </div>
                 
-                <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-2">{selectedJob.title}</h4>
-                    <p className="text-sm text-gray-600">{selectedJob.company} • {selectedJob.location}</p>
-                    <p className="text-sm text-gray-600">{selectedJob.applicationsCount} applications will be affected</p>
+                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                    <h4 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">{selectedJob.title}</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">{selectedJob.company} • {selectedJob.location}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">{selectedJob.applicationsCount} applications will be affected</p>
                 </div>
             </div>
 
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                 <button
                     onClick={closeModal}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                    className="w-full sm:flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
                 >
                     Cancel
                 </button>
                 <button
                     onClick={handleDeleteJob}
-                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    className="w-full sm:flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm sm:text-base"
                 >
                     Delete Job
                 </button>
@@ -490,7 +490,7 @@ const AdminJobs = () => {
       company: '',
       location: '',
       type: 'Full-time',
-      status: 'Draft',
+      status: 'Active',
       description: '',
       requirements: [''],
       responsibilities: [''],
@@ -616,7 +616,7 @@ const AdminJobs = () => {
         
         if (type === 'create') {
             setFormData({
-                title: '', position: '', company: '', location: '', type: 'Full-time', status: 'Draft',
+                title: '', position: '', company: '', location: '', type: 'Full-time', status: 'Active',
                 description: '', requirements: [''], responsibilities: [''], benefits: [''],
                 experienceLevel: '', workingHours: '', salaryMin: 0, salaryMax: 0, currency: 'GBP',
                 skills: [''], department: '', education: '', applicationDeadline: '',
@@ -793,21 +793,21 @@ const AdminJobs = () => {
             <div className="p-6 bg-gray-50 min-h-screen">
                 <div className="max-w-7xl mx-auto">
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-8">
-                        <div className="flex items-center space-x-8">
+                    <div className="flex flex-col sm:flex-row items-center justify-between mb-8 space-y-4 sm:space-y-0">
+                        <div className="flex items-center space-x-4 sm:space-x-8">
                             <div className="text-center">
-                                <div className="text-4xl font-bold">{filteredJobs.length}</div>
+                                <div className="text-3xl sm:text-4xl font-bold">{filteredJobs.length}</div>
                                 <div className="text-gray-500">Job Listings</div>
                             </div>
-                            <div className="h-16 w-px bg-gray-300"></div>
+                            <div className="hidden sm:block h-16 w-px bg-gray-300"></div>
                             <div className="text-center">
-                                <div className="text-4xl font-bold">{filteredJobs.filter(j => j.status === 'Active').length}</div>
+                                <div className="text-3xl sm:text-4xl font-bold">{filteredJobs.filter(j => j.status === 'Active').length}</div>
                                 <div className="text-gray-500">Active</div>
                             </div>
                         </div>
                         <button 
                             onClick={() => openModal('create')}
-                            className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-6 py-3 rounded-lg flex items-center space-x-2"
+                            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 transition-colors text-white px-6 py-3 rounded-lg flex items-center justify-center space-x-2"
                         >
                             <Plus className="w-5 h-5" />
                             <span>Create Job Listing</span>
@@ -815,12 +815,12 @@ const AdminJobs = () => {
                     </div>
 
                     {/* Search and Filters */}
-                    <div className="flex items-center space-x-4 mb-6">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
                         <div className="flex-1 relative">
                             <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Search by title, company, skills, or location..."
+                                placeholder="Search jobs..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -831,11 +831,11 @@ const AdminJobs = () => {
                         </button>
                     </div>
 
-                    <div className="flex space-x-4 mb-6">
+                    <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
                         <select 
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            className="w-full sm:w-auto border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="All">All Statuses</option>
                             <option value="Active">Active</option>
                             <option value="Draft">Draft</option>
@@ -846,7 +846,7 @@ const AdminJobs = () => {
                         <select 
                             value={typeFilter}
                             onChange={(e) => setTypeFilter(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            className="w-full sm:w-auto border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="All">All Types</option>
                             <option value="Full-time">Full-time</option>
                             <option value="Part-time">Part-time</option>
@@ -856,12 +856,12 @@ const AdminJobs = () => {
                         <select 
                             value={departmentFilter}
                             onChange={(e) => setDepartmentFilter(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            className="w-full sm:w-auto border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             {uniqueDepartments.map(dept => (
                                 <option key={dept} value={dept}>{dept}</option>
                             ))}
                         </select>
-                        <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <button className="w-full sm:w-auto p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                             <Filter className="w-4 h-4" />
                         </button>
                     </div>
@@ -870,22 +870,23 @@ const AdminJobs = () => {
                     <div className="space-y-4">
                         {filteredJobs.map((job, index) => (
                             <div key={job.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                                <div className="p-6">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex items-start space-x-4 flex-1">
+                                <div className="p-4 sm:p-6">
+                                    <div className="flex flex-col sm:flex-row items-start justify-between">
+                                        <div className="flex items-start space-x-4 flex-1 w-full">
                                             {/* Company Icon */}
-                                            <div className={`w-16 h-16 ${getCompanyIconColor(index)} rounded-lg flex items-center justify-center text-white font-bold text-lg`}>
+                                            <div className={`hidden sm:flex w-16 h-16 ${getCompanyIconColor(index)} rounded-lg items-center justify-center text-white font-bold text-lg`}>
                                                 {job.company.charAt(0)}
                                             </div>
                                             
                                             {/* Job Details */}
-                                            <div className="flex-1">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <div className="flex flex-row items-center">
-                                                        <h3 className="text-xl font-semibold text-gray-900">{job.title}, </h3>
-                                                        <h3 className="text-xl font-semibold text-blue-600 ml-2">{job.company}</h3>
+                                            <div className="flex-1 w-full">
+                                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 space-y-2 sm:space-y-0">
+                                                    <div className="flex flex-col sm:flex-row items-start sm:items-center">
+                                                        <h3 className="text-xl font-semibold text-gray-900">{job.title}</h3>
+                                                        <span className="hidden sm:inline mx-2">,</span>
+                                                        <h3 className="text-xl font-semibold text-blue-600">{job.company}</h3>
                                                     </div>
-                                                    <div className="flex items-center space-x-2">
+                                                    <div className="flex flex-wrap gap-2">
                                                         <button 
                                                             onClick={() => openModal('view', job)}
                                                             className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
@@ -923,7 +924,7 @@ const AdminJobs = () => {
                                                 
                                                 <p className="text-gray-700 mb-4 line-clamp-2">{job.description}</p>
                                                 
-                                                <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                                                <div className="flex flex-wrap gap-2 sm:gap-4 text-sm text-gray-600 mb-4">
                                                     <div className="flex items-center">
                                                         <MapPin className="w-4 h-4 mr-1" />
                                                         {job.location}
@@ -946,8 +947,8 @@ const AdminJobs = () => {
                                                     </div>
                                                 </div>
                                                 
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center space-x-3">
+                                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+                                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                                                         <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(job.status)}`}>
                                                             {job.status}
                                                         </span>
@@ -993,8 +994,8 @@ const AdminJobs = () => {
 
             {/* Modals */}
             {currentModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
-                    <div className="bg-white rounded-lg w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto animate-slideUp">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn p-4">
+                    <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-slideUp">
                         {currentModal === 'view' && selectedJob && (
                             <ViewJobModal 
                                 selectedJob={selectedJob}

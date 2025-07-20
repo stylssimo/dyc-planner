@@ -49,7 +49,7 @@ interface ModalProps {
   sendCV: (job: Job) => Promise<void>;
 }
 
-function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getStatusColor, sendCV, sendingJobIds }: Pick<ModalProps, 'selectedJob' | 'closeModal' | 'formatSalary' | 'formatDate' | 'getStatusColor' | 'sendCV'> & { sendingJobIds: Set<string> }) {
+function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, sendCV, sendingJobIds }: Pick<ModalProps, 'selectedJob' | 'closeModal' | 'formatSalary' | 'formatDate' | 'getStatusColor' | 'sendCV'> & { sendingJobIds: Set<string> }) {
     if (!selectedJob) return null;
 
     const handleSendCV = async () => {
@@ -57,24 +57,24 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
     };
     
     return (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">{selectedJob.title}</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{selectedJob.title}</h2>
                 <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
                     <X className="w-6 h-6" />
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="lg:col-span-2 space-y-4 sm:space-y-6">
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">Job Description</h3>
-                        <p className="text-gray-700">{selectedJob.description}</p>
+                        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Job Description</h3>
+                        <p className="text-sm sm:text-base text-gray-700">{selectedJob.description}</p>
                     </div>
 
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">Requirements</h3>
-                        <ul className="list-disc list-inside space-y-1">
+                        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Requirements</h3>
+                        <ul className="list-disc list-inside space-y-1 text-sm sm:text-base">
                             {selectedJob.requirements.map((req, idx) => (
                                 <li key={idx} className="text-gray-700">{req}</li>
                             ))}
@@ -82,8 +82,8 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
                     </div>
 
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">Responsibilities</h3>
-                        <ul className="list-disc list-inside space-y-1">
+                        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Responsibilities</h3>
+                        <ul className="list-disc list-inside space-y-1 text-sm sm:text-base">
                             {selectedJob.responsibilities.map((resp, idx) => (
                                 <li key={idx} className="text-gray-700">{resp}</li>
                             ))}
@@ -91,8 +91,8 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
                     </div>
 
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">Benefits</h3>
-                        <ul className="list-disc list-inside space-y-1">
+                        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Benefits</h3>
+                        <ul className="list-disc list-inside space-y-1 text-sm sm:text-base">
                             {selectedJob.benefits.map((benefit, idx) => (
                                 <li key={idx} className="text-gray-700">{benefit}</li>
                             ))}
@@ -100,10 +100,10 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
                     </div>
 
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">Skills Required</h3>
+                        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Skills Required</h3>
                         <div className="flex flex-wrap gap-2">
                             {selectedJob.skills.map((skill, idx) => (
-                                <span key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                                <span key={idx} className="bg-blue-100 text-blue-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
                                     {skill}
                                 </span>
                             ))}
@@ -111,58 +111,52 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
                     </div>
                 </div>
 
-                <div className="space-y-6">
-                    <div className="bg-gray-50 rounded-lg p-4">
+                <div className="space-y-4 sm:space-y-6">
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
                         <h3 className="font-semibold mb-3">Job Details</h3>
-                        <div className="space-y-3 text-sm">
+                        <div className="space-y-3 text-xs sm:text-sm">
                             <div className="flex items-center">
-                                <Building className="w-4 h-4 mr-2 text-gray-500" />
+                                <Building className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.company}</span>
                             </div>
                             <div className="flex items-center">
-                                <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                                <MapPin className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.location}</span>
                             </div>
                             <div className="flex items-center">
-                                <Briefcase className="w-4 h-4 mr-2 text-gray-500" />
+                                <Briefcase className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.type}</span>
                             </div>
                             <div className="flex items-center">
-                                <Clock className="w-4 h-4 mr-2 text-gray-500" />
+                                <Clock className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.workingHours}</span>
                             </div>
                             <div className="flex items-center">
-                                <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
+                                <DollarSign className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{formatSalary(selectedJob)}</span>
                             </div>
                             <div className="flex items-center">
-                                <GraduationCap className="w-4 h-4 mr-2 text-gray-500" />
+                                <GraduationCap className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.education}</span>
                             </div>
                             <div className="flex items-center">
-                                <Users className="w-4 h-4 mr-2 text-gray-500" />
+                                <Users className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.applicationsCount} applications</span>
                             </div>
                             <div className="flex items-center">
-                                <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                                <Calendar className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>Deadline: {new Date(selectedJob.applicationDeadline).toLocaleDateString()}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gray-50 rounded-lg p-4">
-                        <h3 className="font-semibold mb-3">Status</h3>
-                        <div className="space-y-2">
-                            <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(selectedJob.status)}`}>
-                                {selectedJob.status}
-                            </span>
-                            <p className="text-sm text-gray-600">
-                                Posted {formatDate(selectedJob.postedDate)}
-                            </p>
-                        </div>
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                        <p className="text-xs sm:text-sm text-gray-600">
+                            Posted {formatDate(selectedJob.postedDate)}
+                        </p>
                     </div>
 
-                    <div className="bg-blue-50 rounded-lg p-4">
+                    <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
                         <h3 className="font-semibold mb-3 text-blue-800">Apply Now</h3>
                         <button
                             onClick={handleSendCV}
@@ -200,9 +194,9 @@ const JobsPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter] = useState<string>('All');
+    // const [statusFilter] = useState<string>('All');
     const [typeFilter, setTypeFilter] = useState<string>('All');
-    const [departmentFilter] = useState<string>('All');
+    // const [departmentFilter] = useState<string>('All');
     const [sendingJobIds, setSendingJobIds] = useState<Set<string>>(new Set());
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
@@ -415,13 +409,12 @@ const JobsPage = () => {
                                  job.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                  job.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
             
-            const matchesStatus = statusFilter === 'All' || job.status === statusFilter;
             const matchesType = typeFilter === 'All' || job.type === typeFilter;
-            const matchesDepartment = departmentFilter === 'All' || job.department === departmentFilter;
+            const isActive = job.status === 'Active';
             
-            return matchesSearch && matchesStatus && matchesType && matchesDepartment;
+            return matchesSearch && matchesType && isActive;
         });
-    }, [jobs, searchTerm, statusFilter, typeFilter, departmentFilter]);
+    }, [jobs, searchTerm, typeFilter]);
 
     // Utility functions
     const formatSalary = (job: Job) => {
@@ -493,12 +486,12 @@ const JobsPage = () => {
 
     return (
         <>
-            <div className="p-6 bg-gray-50 min-h-screen">
+            <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
                 <div className="max-w-7xl mx-auto">
                     {/* Success Message */}
                     {successMessage && (
-                        <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center">
-                            <div className="flex-1">{successMessage}</div>
+                        <div className="mb-4 p-3 sm:p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center">
+                            <div className="flex-1 text-sm sm:text-base">{successMessage}</div>
                             <button 
                                 onClick={() => setSuccessMessage(null)}
                                 className="text-green-700 hover:text-green-900"
@@ -510,8 +503,8 @@ const JobsPage = () => {
 
                     {/* Error Message */}
                     {error && (
-                        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center">
-                            <div className="flex-1">{error}</div>
+                        <div className="mb-4 p-3 sm:p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center">
+                            <div className="flex-1 text-sm sm:text-base">{error}</div>
                             <button 
                                 onClick={() => setError(null)}
                                 className="text-red-700 hover:text-red-900"
@@ -522,24 +515,21 @@ const JobsPage = () => {
                     )}
 
                     {/* Search and Filters */}
-                    <div className="flex items-center space-x-4 mb-6">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
                         <div className="flex-1 relative">
                             <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Search by title, company, skills, or location..."
+                                placeholder="Search jobs..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
-                    </div>
-
-                    <div className="flex space-x-4 mb-6">
                         <select 
                             value={typeFilter}
                             onChange={(e) => setTypeFilter(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            className="w-full sm:w-auto border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="All">All Types</option>
                             <option value="Full-time">Full-time</option>
                             <option value="Part-time">Part-time</option>
@@ -552,22 +542,23 @@ const JobsPage = () => {
                     <div className="space-y-4">
                         {filteredJobs.map((job, index) => (
                             <div key={job.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                                <div className="p-6">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex items-start space-x-4 flex-1">
+                                <div className="p-4 sm:p-6">
+                                    <div className="flex flex-col sm:flex-row items-start justify-between">
+                                        <div className="flex items-start space-x-4 flex-1 w-full">
                                             {/* Company Icon */}
-                                            <div className={`w-16 h-16 ${getCompanyIconColor(index)} rounded-lg flex items-center justify-center text-white font-bold text-lg`}>
+                                            <div className={`hidden sm:flex w-16 h-16 ${getCompanyIconColor(index)} rounded-lg items-center justify-center text-white font-bold text-lg`}>
                                                 {job.company.charAt(0)}
                                             </div>
                                             
                                             {/* Job Details */}
-                                            <div className="flex-1">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <div className="flex flex-row items-center">
-                                                        <h3 className="text-xl font-semibold text-gray-900">{job.title}, </h3>
-                                                        <h3 className="text-xl font-semibold text-blue-600 ml-2">{job.company}</h3>
+                                            <div className="flex-1 w-full">
+                                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 space-y-2 sm:space-y-0">
+                                                    <div className="flex flex-col sm:flex-row items-start sm:items-center">
+                                                        <h3 className="text-xl font-semibold text-gray-900">{job.title}</h3>
+                                                        <span className="hidden sm:inline mx-2">,</span>
+                                                        <h3 className="text-xl font-semibold text-blue-600">{job.company}</h3>
                                                     </div>
-                                                    <div className="flex items-center space-x-2">
+                                                    <div className="flex flex-wrap gap-2">
                                                         <button 
                                                             onClick={() => sendCV(job)}
                                                             disabled={sendingJobIds.has(job.id) || appliedJobIds.includes(job.id)}
@@ -609,34 +600,31 @@ const JobsPage = () => {
                                                 
                                                 <p className="text-gray-700 mb-4 line-clamp-2">{job.description}</p>
                                                 
-                                                <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                                                <div className="flex flex-wrap gap-2 sm:gap-4 text-sm text-gray-600 mb-4">
                                                     <div className="flex items-center">
-                                                        <MapPin className="w-4 h-4 mr-1" />
+                                                        <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
                                                         {job.location}
                                                     </div>
                                                     <div className="flex items-center">
-                                                        <Briefcase className="w-4 h-4 mr-1" />
+                                                        <Briefcase className="w-4 h-4 mr-1 flex-shrink-0" />
                                                         {job.experienceLevel}
                                                     </div>
                                                     <div className="flex items-center">
-                                                        <Clock className="w-4 h-4 mr-1" />
+                                                        <Clock className="w-4 h-4 mr-1 flex-shrink-0" />
                                                         {job.workingHours}
                                                     </div>
                                                     <div className="flex items-center">
-                                                        <DollarSign className="w-4 h-4 mr-1" />
+                                                        <DollarSign className="w-4 h-4 mr-1 flex-shrink-0" />
                                                         {formatSalary(job)}
                                                     </div>
                                                     <div className="flex items-center">
-                                                        <Users className="w-4 h-4 mr-1" />
+                                                        <Users className="w-4 h-4 mr-1 flex-shrink-0" />
                                                         {job.applicationsCount} applications
                                                     </div>
                                                 </div>
                                                 
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center space-x-3">
-                                                        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(job.status)}`}>
-                                                            {job.status}
-                                                        </span>
+                                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+                                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                                                         <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getTypeColor(job.type)}`}>
                                                             {job.type}
                                                         </span>
@@ -664,23 +652,23 @@ const JobsPage = () => {
                     {/* Empty State */}
                     {filteredJobs.length === 0 && (
                         <div className="text-center py-12">
-                            <Briefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
-                            <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+                            <Briefcase className="w-12 sm:w-16 h-12 sm:h-16 text-gray-400 mx-auto mb-4" />
+                            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
+                            <p className="text-sm sm:text-base text-gray-600">Try adjusting your search or filter criteria</p>
                         </div>
                     )}
 
                     {/* Results count */}
-                    <div className="mt-4 text-sm text-gray-500">
-                        Showing {filteredJobs.length} of {jobs.length} job listings
+                    <div className="mt-4 text-xs sm:text-sm text-gray-500">
+                        Showing {filteredJobs.length} job listings
                     </div>
                 </div>
             </div>
 
             {/* Modals */}
             {currentModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
-                    <div className="bg-white rounded-lg w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto animate-slideUp">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn p-4">
+                    <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-slideUp">
                         {currentModal === 'view' && selectedJob && (
                             <ViewJobModal 
                                 selectedJob={selectedJob}

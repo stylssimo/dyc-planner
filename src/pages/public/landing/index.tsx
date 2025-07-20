@@ -81,7 +81,7 @@ const Landing = () => {
                     {/* Mobile-First Search Bar */}
                     <div className="w-full max-w-6xl mx-auto">
                         {/* Desktop Search Bar */}
-                        <div className="hidden lg:flex backdrop-blur-lg bg-white/20 border border-white/30 rounded-2xl shadow-2xl p-6 items-center space-x-4 mt-8">
+                        <div className="hidden lg:flex backdrop-blur-lg bg-white/20 border border-white/30 rounded-2xl shadow-2xl p-6 items-center space-x-4 mt-8 justify-around">
                             <div className="flex items-center space-x-2 text-white">
                                 <MapPin className="w-5 h-5 text-white" />
                                 <input 
