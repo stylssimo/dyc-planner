@@ -257,24 +257,33 @@ const JobsPage = () => {
                 
                 setJobs(jobsData);
 
-                const applicationsRef = collection(db, 'users', user?.email || '', 'jobApplications');
-                const applicationsQuerySnapshot = await getDocs(applicationsRef);
-                
-                const jobIds: string[] = [];
-                const appliedJobsHolder: Job[] = [];
-                applicationsQuerySnapshot.docs.forEach(doc => {
-                    const data = doc.data();
-                    if (data.jobId) {
-                        jobIds.push(data.jobId);
-                        appliedJobsHolder.push(data as Job);
-                    }
-                });
+                if (user?.email?.length === 0 || user?.email === null || user?.email === undefined){
+                    setError('Please Login to view jobs.');
+                } else {
+                    
+                    const applicationsRef = collection(db, 'users', user?.email || '', 'jobApplications');
+                    const applicationsQuerySnapshot = await getDocs(applicationsRef);
+                    
+                    const jobIds: string[] = [];
+                    const appliedJobsHolder: Job[] = [];
+                    applicationsQuerySnapshot.docs.forEach(doc => {
+                        const data = doc.data();
+                        if (data.jobId) {
+                            jobIds.push(data.jobId);
+                            appliedJobsHolder.push(data as Job);
+                        }
+                    });
         
-                setAppliedJobIds(jobIds);
-                setAppliedJobs(appliedJobsHolder);
+                    setAppliedJobIds(jobIds);
+                    setAppliedJobs(appliedJobsHolder);
+                }
             } catch (err) {
                 console.error('Error fetching jobs:', err);
-                setError('Failed to load jobs. Please try again.');
+                if (user?.email?.length === 0 || user?.email === null || user?.email === undefined){
+                    setError('Please Login to view jobs.');
+                } else {
+                    setError('Failed to load jobs. Please try again.');
+                }
             } finally {
                 setLoading(false);
             }
