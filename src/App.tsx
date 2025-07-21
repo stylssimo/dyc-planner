@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginModal from './components/LoginModal';
 import AdminDashboard from './pages/admin/dashboard';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -130,22 +130,11 @@ const App = () => {
           )}
           <main className={`${isAdminRoute ? 'pt-14 md:pt-0' : ''} ${isAdminRoute && isSidebarCollapsed ? 'md:pl-20' : isAdminRoute ? 'md:pl-64' : ''} transition-all`}>
             {isAuthInitialized ? (
-              <Routes>
-                {/* <Route
-                  path="/admin"
-                  element={
-                    isLoggedIn && loggedInUser?.role === 'admin' ? (
-                      <AdminDashboard />
-                    ) : (
-                      <Navigate to="/" />
-                    )
-                  }
-                /> */}
-                
-                {/* admin routes */}
+              <Routes>                
                 <Route
                   path="/admin"
                 >
+                  <Route index element={<Navigate to="dashboard" />} />
                   <Route path='dashboard' element={<AdminDashboard />}/>
                   <Route path='consultations' element={<AdminCons />}/>
                   <Route path='trips'>

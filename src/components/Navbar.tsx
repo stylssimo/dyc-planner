@@ -56,6 +56,7 @@ const Navbar: React.FC<NavbarProps> = ({
         { label: t('nav.jobs'), icon: <Handshake size={20} />, href: '/admin/jobs' },
         { label: t('nav.cv'), icon: <Handshake size={20} />, href: '/admin/cv' },
         { label: t('nav.calendar'), icon: <Calendar size={20} />, href: '/admin/calendar' },
+        { label: 'User Screen', icon: <User size={20} />, href: '/' },
         // { label: t('nav.createTrip'), icon: <Plus size={20} />, href: '/admin/trips/create' },
         // { label: t('nav.admin'), icon: <ShieldCheck size={20} />, href: '/admin/admin', admin: true },
     ];

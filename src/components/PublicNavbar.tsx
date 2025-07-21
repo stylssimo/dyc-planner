@@ -5,6 +5,7 @@ import { signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEma
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface PublicNavbarProps {
   transparent?: boolean;
@@ -14,6 +15,7 @@ interface PublicNavbarProps {
 const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, className = '' }) => {
   // Use global auth context
   const { user, setUser } = useAuth();
+  const navigate = useNavigate();
   
   // Mobile menu state
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -69,23 +71,29 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
   };
 
   const handleMyCVClick = () => {
-    window.open('/cv', '_blank');
+    navigate('/cv');
     setShowUserDropdown(false);
     setShowMobileMenu(false);
   };
 
   const handleLandingClick = () => {
-    window.location.href = '/';
+    navigate('/');
     setShowMobileMenu(false);
   };
 
   const handleTripsClick = () => {
-    window.open('/trips', '_blank');
+    navigate('/trips');
     setShowMobileMenu(false);
   };
 
   const handleJobsClick = () => {
-    window.open('/jobs', '_blank');
+    navigate('/jobs');
+    setShowMobileMenu(false);
+  };
+  
+  const handleAdminViewClick = () => {
+    navigate('/admin/dashboard', { replace: true });
+    window.location.reload();
     setShowMobileMenu(false);
   };
 
@@ -193,6 +201,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
           <button onClick={handleLandingClick} className="hover:text-gray-300 transition-colors">Home</button>
           <button onClick={handleTripsClick} className="hover:text-gray-300 transition-colors">Trips</button>
           <button onClick={handleJobsClick} className="hover:text-gray-300 transition-colors">Jobs</button>
+          <button onClick={handleAdminViewClick} className="hover:text-gray-300 transition-colors">Admin Screen</button>
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <button
@@ -294,6 +303,12 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
               className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               Jobs
+            </button>
+            <button 
+              onClick={handleAdminViewClick} 
+              className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              Admin Screen
             </button>
 
             {user ? (
