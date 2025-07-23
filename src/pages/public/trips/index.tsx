@@ -12,6 +12,10 @@ const TripsPage = () => {
   const [continentFilter, setContinentFilter] = useState('All Continents');
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   // Get URL search parameters on component mount
+
+  console.log('asdfsdf')
+
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchParam = urlParams.get('search') || '';
@@ -23,6 +27,9 @@ const TripsPage = () => {
     setStartDate(startParam);
     setEndDate(endParam);
     setGuests(guestsParam);
+
+  console.log('asdfsdf')
+
   }, []);
 
   // Filter trips when search parameters or trips change

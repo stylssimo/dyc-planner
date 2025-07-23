@@ -52,6 +52,8 @@ export const useTrips = () => {
     return result + ' tour';
   };
 
+  console.log('asdfsdf')
+
   useEffect(() => {
     const fetchTrips = async () => {
       try {
@@ -68,7 +70,7 @@ export const useTrips = () => {
           const data = doc.data();
           
           // Only include trips that have complete data and could be considered "active"
-          if (data.formData?.travelName && data.formData?.country) {
+          if (data.formData?.travelName) {
             const trip: PublicTrip = {
               id: doc.id,
               name: data.formData.travelName,
@@ -89,6 +91,7 @@ export const useTrips = () => {
         });
         
         setTrips(fetchedTrips);
+        console.log(fetchedTrips, 'fetchedTrips')
       } catch (err) {
         console.error('Error fetching trips:', err);
         setError('Failed to load trips. Please try again.');

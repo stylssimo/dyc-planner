@@ -23,6 +23,7 @@ import PublicNavbar from './components/PublicNavbar';
 import { AuthProvider } from './contexts/AuthContext';
 import UserCV from './pages/public/cv';
 import AdminCVView from './pages/admin/cv/pages/view';
+import VisaPage from './pages/public/visa/index';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -159,6 +160,7 @@ const App = () => {
                   <Route path="trip/:id" element={<TripDetails />} />
                   <Route path="jobs" element={<JobsPage />} />
                   <Route path="cv" element={<UserCV />} />
+                  <Route path="visa" element={<VisaPage />} />
                 </Route>
               </Routes>
             ) : (

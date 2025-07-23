@@ -412,6 +412,7 @@ const TripDetails = () => {
   }
 
   // Error state
+
   if (error || !tripData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -448,7 +449,7 @@ const TripDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 py-8 pt-24">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Hero Section */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
           {formData.heroImage && (

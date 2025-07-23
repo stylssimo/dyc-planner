@@ -1,54 +1,55 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Plus, MapPin, Eye, Edit, List, Image } from 'lucide-react';
+import { Search, Plus, MapPin, Eye, Edit, List, Image, Trash } from 'lucide-react';
 import { type TripTableRow } from './components/mockData';
 import { db } from '../../../firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, deleteDoc, doc, limit, startAfter, where, getDoc, setDoc } from 'firebase/firestore';
+import DeleteModal from '../../../components/DeleteModal.tsx';
 
 // Helper function to calculate duration from dates
 const calculateDuration = (startDate: string, endDate: string): string => {
-  if (!startDate || !endDate) return 'TBD';
+	if (!startDate || !endDate) return 'TBD';
+
+	const start = new Date(startDate);
+	const end = new Date(endDate);
+
+	if (end <= start) return 'TBD';
+
+	const diffTime = Math.abs(end.getTime() - start.getTime());
+	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+	if (diffDays === 1) return '1 day';
+	if (diffDays < 7) return `${diffDays} days`;
+
+	const weeks = Math.floor(diffDays / 7);
+	const remainingDays = diffDays % 7;
   
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+	let result = '';
+	if (weeks === 1) result += '1 week';
+	else if (weeks > 1) result += `${weeks} weeks`;
   
-  if (end <= start) return 'TBD';
+	if (remainingDays > 0) {
+		if (result) result += ' ';
+		result += remainingDays === 1 ? '1 day' : `${remainingDays} days`;
+	}
   
-  const diffTime = Math.abs(end.getTime() - start.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  if (diffDays === 1) return '1 day';
-  if (diffDays < 7) return `${diffDays} days`;
-  
-  const weeks = Math.floor(diffDays / 7);
-  const remainingDays = diffDays % 7;
-  
-  let result = '';
-  if (weeks === 1) result += '1 week';
-  else if (weeks > 1) result += `${weeks} weeks`;
-  
-  if (remainingDays > 0) {
-    if (result) result += ' ';
-    result += remainingDays === 1 ? '1 day' : `${remainingDays} days`;
-  }
-  
-  return result;
+	return result;
 };
 
 // Helper function to parse price from string to number
 const parsePrice = (priceString: string): number => {
-  if (!priceString || priceString === 'TBD') return 0;
-  
-  // Remove currency symbols and parse
-  const cleanPrice = priceString.replace(/[$,]/g, '');
-  const parsed = parseFloat(cleanPrice);
-  
-  return isNaN(parsed) ? 0 : parsed;
+	if (!priceString || priceString === 'TBD') return 0;
+
+	// Remove currency symbols and parse
+	const cleanPrice = priceString.replace(/[$,]/g, '');
+	const parsed = parseFloat(cleanPrice);
+
+	return isNaN(parsed) ? 0 : parsed;
 };
 
 // Helper function to format price for display
 const formatPrice = (price: number): string => {
-  if (price === 0) return 'TBD';
-  return `$${price.toLocaleString()}`;
+	if (price === 0) return 'TBD';
+	return `$${price.toLocaleString()}`;
 };
 
 const AdminTrips = () => {
@@ -59,52 +60,104 @@ const AdminTrips = () => {
     const [statusFilter, setStatusFilter] = useState<string>('All');
     const [continentFilter, setContinentFilter] = useState<string>('Continents');
     const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+	const [deletingTripId, setDeletingTripId] = useState<string | null>(null);
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 
+	const [totalTrips, setTotalTrips] = useState(0);
+	const [hasMore, setHasMore] = useState(true);
+	const [isLoadingMore, setIsLoadingMore] = useState(false);
+	const [totalActiveTrips, setTotalActiveTrips] = useState(0);
+	const TRIPS_PER_PAGE = 6; // Adjust based on your needs
+	
     // Fetch trips from Firebase
-    useEffect(() => {
-        const fetchTrips = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                
-                const tripsRef = collection(db, 'trips');
-                const q = query(tripsRef, orderBy('createdAt', 'desc'));
-                const querySnapshot = await getDocs(q);
-                
-                const trips: TripTableRow[] = [];
-                
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    
-                    // Transform Firebase data to match TripTableRow interface
-                    const trip: TripTableRow = {
-                        id: doc.id,
-                        name: data.formData?.travelName || 'Untitled Trip',
-                        status: 'Active', // Default status for new trips
-                        country: data.formData?.country || 'Unknown',
-                        continent: data.formData?.continent || 'Unknown',
-                        duration: calculateDuration(data.formData?.startDate, data.formData?.endDate),
-                        description: `${data.formData?.numberOfPeople || '1'} ${parseInt(data.formData?.numberOfPeople) === 1 ? 'person' : 'people'} • ${data.stops?.length || 0} stops`,
-                        price: parsePrice(data.formData?.pricePoint),
-                        bookedCount: 0, // Default for new trips
-                        imageUrl: data.formData?.heroImage || data.days?.[0]?.activities?.[0]?.images?.[0] || '/trip_hero_image.webp', // Use hero image first, then activity image, then default
-                        createdAt: data.createdAt
-                    };
-                    
-                    trips.push(trip);
-                });
-                
-                setTripsData(trips);
-            } catch (err) {
-                console.error('Error fetching trips:', err);
-                setError('Failed to load trips. Please try again.');
-            } finally {
-                setLoading(false);
-            }
-        };
 
+	const fetchTrips = async (page = 1, reset = false) => {
+		try {
+			if (page === 1) {
+				setLoading(true);
+				setError(null);
+			} else {
+				setIsLoadingMore(true);
+			}
+			
+			const tripsRef = collection(db, 'trips');
+			let q = query(tripsRef, orderBy('createdAt', 'desc'));			
+			// For pagination, we need to use startAfter with the last document
+			if (page > 1 && tripsData.length > 0 && !reset) {
+				// Get the last document from current data
+				const lastTripId = tripsData[tripsData.length - 1].id;
+				const lastDoc = await getDocs(query(collection(db, 'trips'), where('__name__', '==', lastTripId)));
+				if (!lastDoc.empty) {
+					q = query(tripsRef, orderBy('createdAt', 'desc'), startAfter(lastDoc.docs[0]), limit(TRIPS_PER_PAGE));
+				}
+			} else {
+				q = query(tripsRef, orderBy('createdAt', 'desc'), limit(TRIPS_PER_PAGE));
+			}
+			
+			const querySnapshot = await getDocs(q);
+			const trips: TripTableRow[] = [];
+			
+			querySnapshot.forEach((doc) => {
+				const data = doc.data();
+				
+				// Optimized data transformation - only get essential fields
+				const trip: TripTableRow = {
+					id: doc.id,
+					name: data.formData?.travelName || 'Untitled Trip',
+					status: 'Active',
+					country: data.formData?.country || 'Unknown',
+					continent: data.formData?.continent || 'Unknown',
+					duration: calculateDuration(data.formData?.startDate, data.formData?.endDate),
+					description: `${data.formData?.numberOfPeople || '1'} ${parseInt(data.formData?.numberOfPeople) === 1 ? 'person' : 'people'} • ${data.stops?.length || 0} stops`,
+					price: parsePrice(data.formData?.pricePoint),
+					bookedCount: 0,
+					// Lazy load images - use placeholder first
+					imageUrl: data.formData?.heroImage || '/trip_hero_image.webp',
+					createdAt: data.createdAt
+				};
+				
+				trips.push(trip);
+			});
+			
+			// Update state based on whether this is a reset or append
+			if (reset || page === 1) {
+				setTripsData(trips);
+			} else {
+				setTripsData(prev => [...prev, ...trips]);
+			}
+			
+			// Check if there are more trips to load
+			setHasMore(trips.length === TRIPS_PER_PAGE);
+			
+			// Get total count only on first load (expensive operation)
+			const countQuery = doc(db, 'trips', 'total');
+			if (page === 1) {
+				const countSnapshot = await getDoc(countQuery);
+				setTotalTrips(countSnapshot.data()?.totalTrips || 0);
+				setTotalActiveTrips(countSnapshot.data()?.totalActiveTrips || 0);
+			}
+			
+		} catch (err) {
+			console.error('Error fetching trips:', err);
+			setError('Failed to load trips. Please try again.');
+		} finally {
+			setLoading(false);
+			setIsLoadingMore(false);
+		}
+	};
+	
+
+    useEffect(() => {
         fetchTrips();
     }, []);
+
+	const loadMoreTrips = () => {
+		if (!isLoadingMore && hasMore) {
+			const nextPage = Math.floor(tripsData.length / TRIPS_PER_PAGE) + 1;
+			fetchTrips(nextPage, false);
+		}
+	};
 
     const getStatusColor = (status: TripTableRow['status']) => {
         switch (status) {
@@ -122,22 +175,32 @@ const AdminTrips = () => {
     }, [tripsData]);
 
     // Filter and search functionality
-    const filteredData = useMemo(() => {
-        return tripsData.filter(trip => {
-            const matchesSearch = trip.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                 trip.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                 trip.description.toLowerCase().includes(searchTerm.toLowerCase());
-            
-            const matchesStatus = statusFilter === 'All' || trip.status === statusFilter;
-            const matchesContinent = continentFilter === 'Continents' || trip.continent === continentFilter;
-            
-            return matchesSearch && matchesStatus && matchesContinent;
-        });
-    }, [tripsData, searchTerm, statusFilter, continentFilter]);
+	const filteredData = useMemo(() => {
+		if (!searchTerm && statusFilter === 'All' && continentFilter === 'Continents') {
+			return tripsData; // No filtering needed
+		}
+		
+		return tripsData.filter(trip => {
+			const matchesSearch = !searchTerm || 
+				trip.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				trip.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				trip.description.toLowerCase().includes(searchTerm.toLowerCase());
+			
+			const matchesStatus = statusFilter === 'All' || trip.status === statusFilter;
+			const matchesContinent = continentFilter === 'Continents' || trip.continent === continentFilter;
+			
+			return matchesSearch && matchesStatus && matchesContinent;
+		});
+	}, [tripsData, searchTerm, statusFilter, continentFilter]);
 
     const handleCreateTrip = () => {
         window.open('/admin/trips/create', '_blank');
     };
+
+	const handleDeleteTrip = (id: string) => {
+		setShowDeleteModal(true);
+		setDeletingTripId(id);
+	};
 
 	const handleViewTrip = (id: string) => {
 		window.open(`/admin/trips/view/${id}`, '_blank');
@@ -145,6 +208,36 @@ const AdminTrips = () => {
 
 	const handleEditTrip = (id: string) => {
 		window.open(`/admin/trips/edit/${id}`, '_blank');
+	};
+
+	const handleConfirmDelete = async () => {
+		setIsDeleting(true);
+		setShowDeleteModal(false);
+		handleDeleteTrip(deletingTripId || '');
+
+		// delete trip from firebase
+
+		const countQuery = doc(db, 'trips', 'total');
+		const countSnapshot = await getDoc(countQuery);
+		const totalTrips = countSnapshot.data()?.totalTrips || 0;
+		const totalActiveTrips = countSnapshot.data()?.totalActiveTrips || 0;
+		await setDoc(countQuery, { totalTrips: totalTrips - 1, totalActiveTrips: totalActiveTrips - 1 });
+
+		const tripRef = doc(db, 'trips', deletingTripId || '');
+		await deleteDoc(tripRef);
+
+		// update tripsData
+		setTripsData(tripsData.filter(trip => trip.id !== deletingTripId));
+		setDeletingTripId(null);
+
+		// fetch trips again
+		fetchTrips();
+		setIsDeleting(false);
+		setShowDeleteModal(false);
+	};
+
+	const handleCancelDelete = () => {
+		setShowDeleteModal(false);
 	};
 
     if (loading) {
@@ -186,42 +279,45 @@ const AdminTrips = () => {
         <div className="p-6 bg-gray-50 min-h-screen">
           <div className="max-w-7xl mx-auto">
             {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center space-x-8">
-                <div className="text-center">
-                  <div className="text-4xl font-bold">{filteredData.length}</div>
-                  <div className="text-gray-500">Trips</div>
-                </div>
-                <div className="h-16 w-px bg-gray-300"></div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold">{filteredData.filter(t => t.status === 'Active').length}</div>
-                  <div className="text-gray-500">Active</div>
-                </div>
-              </div>
-              <button 
-                onClick={handleCreateTrip}
-                className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-4 py-2 rounded-lg flex items-center space-x-2">
-                <Plus className="w-4 h-4" />
-                <span>Create New Trip</span>
-              </button>
-            </div>
+			<div className='sticky top-0 z-10 bg-gray-50 pb-4'>
+				<div className="flex items-center justify-between mb-8">
+					<div className="flex items-center space-x-8">
+						<div className="text-center">
+							<div className="text-4xl font-bold">{totalTrips}</div>
+							<div className="text-gray-500">Trips</div>
+						</div>
+						<div className="h-16 w-px bg-gray-300"></div>
+						<div className="text-center">
+							<div className="text-4xl font-bold">{totalActiveTrips}</div>
+							<div className="text-gray-500">Active</div>
+						</div>
+					</div>
+					<button 
+						onClick={handleCreateTrip}
+						className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+						<Plus className="w-4 h-4" />
+						<span>Create New Trip</span>
+					</button>
+				</div>
+				<div className="flex items-center space-x-4 mb-6">
+					<div className="flex-1 relative">
+						<Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+						<input
+						type="text"
+						placeholder="Search trips by name, country, or description..."
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+						className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</div>
+					{/* <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+						<MoreHorizontal className="w-4 h-4" />
+					</button> */}
+				</div>
+			</div>
 
             {/* Search and Filters */}
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search trips by name, country, or description..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              {/* <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                <MoreHorizontal className="w-4 h-4" />
-              </button> */}
-            </div>
+            
 
             <div className="flex items-center justify-between mb-6">
               <div className="flex space-x-4">
@@ -231,8 +327,6 @@ const AdminTrips = () => {
                   className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="All">All Statuses</option>
                   <option value="Active">Active</option>
-                  {/* <option value="Draft">Draft</option> */}
-                  {/* <option value="Archived">Archived</option> */}
                 </select>
                 <select 
                   value={continentFilter}
@@ -289,7 +383,14 @@ const AdminTrips = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredData.map((trip) => (
                           <div key={trip.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                            <img src={trip.imageUrl} alt={trip.name} className="w-full h-48 object-cover" />
+							<div className="relative">
+                            	<img src={trip.imageUrl} alt={trip.name} className="w-full h-48 object-cover" />
+								<div className="absolute top-2 right-2 flex items-center space-x-2 bg-white rounded-lg p-2">
+									<button onClick={() => handleDeleteTrip(trip.id)} className="text-red-600 hover:text-red-800">
+										<Trash className="w-4 h-4" />
+									</button>
+								</div>
+							</div>
                             <div className="p-4">
                               <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-lg font-semibold truncate">{trip.name}</h3>
@@ -378,12 +479,44 @@ const AdminTrips = () => {
             )}
 
             {/* Results count */}
-            {filteredData.length > 0 && (
-                <div className="mt-4 text-sm text-gray-500">
-                  Showing {filteredData.length} of {tripsData.length} trips
-                </div>
-            )}
+			{/* {filteredData.length > 0 && (
+				<div className="mt-4 text-sm text-gray-500 flex justify-between items-center">
+					<span>Showing {filteredData.length} trips {totalTrips > 0 && `of ${totalTrips} total`}</span>
+					{hasMore && (
+						<span className="text-blue-600">{tripsData.length} loaded • Scroll for more</span>
+					)}
+				</div>
+			)} */}
           </div>
+
+		  {/* Delete Modal */}
+		  	<DeleteModal
+				isOpen={showDeleteModal}
+				onClose={handleCancelDelete}
+				onConfirm={handleConfirmDelete}
+				loading={isDeleting}
+				modalTitle="Delete Trip"
+				modalDescription="Are you sure you want to delete this trip? This action cannot be undone."
+		  	/>
+			{/* Load More Button */}
+			{hasMore && tripsData.length > 0 && (
+				<div className="flex justify-center mt-8">
+					<button
+						onClick={loadMoreTrips}
+						disabled={isLoadingMore}
+						className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+					>
+						{isLoadingMore ? (
+							<>
+								<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+								<span>Loading...</span>
+							</>
+						) : (
+							<span>Load More Trips</span>
+						)}
+					</button>
+				</div>
+			)}
         </div>
       );
 };

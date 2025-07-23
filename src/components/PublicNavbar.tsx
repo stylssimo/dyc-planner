@@ -86,6 +86,11 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
     setShowMobileMenu(false);
   };
 
+  const handleVisaClick = () => {
+    navigate('/visa');
+    setShowMobileMenu(false);
+  };
+
   const handleJobsClick = () => {
     navigate('/jobs');
     setShowMobileMenu(false);
@@ -179,8 +184,8 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
   };
 
   const navClasses = transparent 
-    ? `absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-6 transition-all duration-700 ease-in-out ${showAuthForm ? 'z-0' : 'z-20'}`
-    : `relative bg-white z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-6`;
+    ? `sticky top-0 left-0 right-0 z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-6 transition-all duration-700 ease-in-out ${showAuthForm ? 'z-0' : 'z-20'}`
+    : `sticky bg-white z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-6`;
 
   const textClasses = transparent ? 'text-white' : 'text-gray-900';
   const logoClasses = transparent ? 'text-white text-xl md:text-2xl font-bold flex items-center' : 'text-blue-600 text-xl md:text-2xl font-bold flex items-center';
@@ -201,6 +206,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
           <button onClick={handleLandingClick} className="hover:text-gray-300 transition-colors">Home</button>
           <button onClick={handleTripsClick} className="hover:text-gray-300 transition-colors">Trips</button>
           <button onClick={handleJobsClick} className="hover:text-gray-300 transition-colors">Jobs</button>
+          <button onClick={handleVisaClick} className="hover:text-gray-300 transition-colors">Visa</button>
           <button onClick={handleAdminViewClick} className="hover:text-gray-300 transition-colors">Admin Screen</button>
           {user ? (
             <div className="relative" ref={dropdownRef}>
@@ -303,6 +309,12 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
               className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               Jobs
+            </button>
+            <button 
+              onClick={handleVisaClick} 
+              className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              Visa
             </button>
             <button 
               onClick={handleAdminViewClick} 

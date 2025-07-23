@@ -454,7 +454,7 @@ const EditTrip = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="sticky top-0 z-10 bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -463,7 +463,6 @@ const EditTrip = () => {
                 className="flex items-center text-gray-600 hover:text-gray-800"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
-                Back to Trips
               </button>
               <h1 className="text-2xl font-bold text-gray-900">Edit Itinerary</h1>
             </div>

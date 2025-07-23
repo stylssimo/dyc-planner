@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, X, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../../../firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 
 interface TripFormData {
@@ -134,53 +134,13 @@ const CreateTrip = () => {
   });
 
   // Stops state
-  const [stops, setStops] = useState<Stop[]>([
-    { id: '1', name: 'Marseille', address: 'Marseille, France' },
-    { id: '2', name: 'Arles', address: 'Arles, France' },
-    { id: '3', name: 'Gordes', address: '84220 Gordes, France' },
-    { id: '4', name: 'Avignon', address: 'Avignon, France' },
-    { id: '5', name: 'Lyon', address: 'Lyon, France' },
-    { id: '6', name: 'Beaune', address: '21200 Beaune, France' },
-  ]);
+  const [stops, setStops] = useState<Stop[]>([]);
 
   const [newStopName, setNewStopName] = useState('');
   const [newStopAddress, setNewStopAddress] = useState('');
 
   // Days and activities state
-  const [days, setDays] = useState<Day[]>([
-    {
-      id: '1',
-      dayNumber: 1,
-      activities: [
-        {
-          id: '1',
-          type: 'activity',
-          title: 'Arrival in Marseille and private transfer to the hotel',
-          description: 'Welcome to your adventure in the beautiful city of Marseille',
-          duration: 'Full Day',
-          location: 'Marseille, France',
-          bulletPoints: ['Arrival at Marseille airport', 'Private transfer to hotel', 'Check-in and welcome drink'],
-          images: []
-        }
-      ]
-    },
-    {
-      id: '2',
-      dayNumber: 2,
-      activities: [
-        {
-          id: '2',
-          type: 'activity',
-          title: 'Enter event title',
-          description: 'Event destination',
-          duration: 'Enter Duration',
-          location: 'Enter location',
-          bulletPoints: ['Bulletin for summary'],
-          images: []
-        }
-      ]
-    }
-  ]);
+  const [days, setDays] = useState<Day[]>([]);
 
   // Local storage key
   const STORAGE_KEY = 'create-trip-form-data';
@@ -403,7 +363,7 @@ const CreateTrip = () => {
     setFormData(prev => ({ ...prev, heroImage: '' }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const tripData = {
@@ -416,20 +376,29 @@ const CreateTrip = () => {
     console.log('Trip created:', tripData);
 
     const submitTrip = async () => {    
-        const tripCountry = tripData.formData.country.toLowerCase().replace(/ /g, '-')
+        const tripName = tripData.formData.travelName.toLowerCase().replace(/ /g, '-')
         const tripStartDate = tripData.formData.startDate.toLowerCase().replaceAll('-', '')
         const tripEndDate = tripData.formData.endDate.toLowerCase().replaceAll('-', '')
-        const tripNameId = `${tripCountry}-${tripStartDate}-${tripEndDate}-${nanoid(5)}`
+        const tripNameId = `${tripName}-${tripStartDate}-${tripEndDate}-${nanoid(5)}`
         const tripRef = doc(db, 'trips', tripNameId);
         await setDoc(tripRef, tripData);
+
+        const countQuery = doc(db, 'trips', 'total');
+        const countSnapshot = await getDoc(countQuery);
+        const totalTrips = countSnapshot.data()?.totalTrips || 0;
+        const totalActiveTrips = countSnapshot.data()?.totalActiveTrips || 0;
+        await setDoc(countQuery, { totalTrips: totalTrips + 1, totalActiveTrips: totalActiveTrips + 1 });
+
+        
         console.log('Document written with ID: ', tripNameId);
     }
 
-    submitTrip();
+    await submitTrip();
 
     alert('Trip created successfully!');
     localStorage.removeItem(STORAGE_KEY);
     navigate('/admin/trips');
+    window.close();
   };
 
   const clearAllData = () => {

@@ -49,7 +49,6 @@ const Navbar: React.FC<NavbarProps> = ({
     };
 
     const menuItems = [
-        // { label: t('nav.home'), icon: <Home size={20} />, href: '/' },
         { label: t('nav.dashboard'), icon: <LayoutDashboard size={20} />, href: '/admin/dashboard' },
         { label: t('nav.consultations'), icon: <Info size={20} />, href: '/admin/consultations' },
         { label: t('nav.trips'), icon: <Package size={20} />, href: '/admin/trips' },
@@ -57,8 +56,6 @@ const Navbar: React.FC<NavbarProps> = ({
         { label: t('nav.cv'), icon: <Handshake size={20} />, href: '/admin/cv' },
         { label: t('nav.calendar'), icon: <Calendar size={20} />, href: '/admin/calendar' },
         { label: 'User Screen', icon: <User size={20} />, href: '/' },
-        // { label: t('nav.createTrip'), icon: <Plus size={20} />, href: '/admin/trips/create' },
-        // { label: t('nav.admin'), icon: <ShieldCheck size={20} />, href: '/admin/admin', admin: true },
     ];
 
     return (
