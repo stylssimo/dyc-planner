@@ -1,7 +1,8 @@
 // src/components/Navbar.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, Info, Globe, User, LogIn, LayoutDashboard, Package, Handshake, Menu, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, Globe, User, LogIn, LayoutDashboard, Package, Handshake, Menu, Calendar, DollarSign } from 'lucide-react';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 interface NavbarProps {
     isLoggedIn: boolean;
@@ -21,6 +22,8 @@ const Navbar: React.FC<NavbarProps> = ({
     setIsSidebarCollapsed,
 }) => {
     const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
+
+    const { currency, toggleCurrency } = useCurrency();
 
     const { i18n, t } = useTranslation();
     const [showLangMenu, setShowLangMenu] = useState(false);
@@ -113,6 +116,15 @@ const Navbar: React.FC<NavbarProps> = ({
                             )}
                         </div>
                     )}
+
+                    <button
+                        onClick={() => {
+                            toggleCurrency();
+                        }}
+                        className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md transition-colors duration-200">
+                        <DollarSign size={20} />
+                        {currency === 'USD' ? 'USD' : 'MNT'}
+                    </button>
 
                     {!isLoggedIn && (
                         <button onClick={onLoginClick} className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-2 py-2 rounded-md transition-colors duration-200">

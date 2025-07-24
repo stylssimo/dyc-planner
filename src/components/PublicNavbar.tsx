@@ -91,6 +91,11 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
     setShowMobileMenu(false);
   };
 
+  const handleMyProfileClick = () => {
+    navigate('/profile');
+    setShowMobileMenu(false);
+  };
+
   const handleJobsClick = () => {
     navigate('/jobs');
     setShowMobileMenu(false);
@@ -271,6 +276,12 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center space-x-2"
                 >
                   <span>My CV</span>
+                </button>
+                <button
+                  onClick={handleMyProfileClick}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  My Profile
                 </button>
                 <button
                   onClick={handleLogout}

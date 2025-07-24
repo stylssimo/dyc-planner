@@ -24,6 +24,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import UserCV from './pages/public/cv';
 import AdminCVView from './pages/admin/cv/pages/view';
 import VisaPage from './pages/public/visa/index';
+import { CurrencyProvider } from './contexts/CurrencyContext';
+import ProfilePage from './pages/public/profile/index.tsx';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -112,70 +114,73 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <Router>
-        <div className="font-sans bg-white text-gray-900">
-          {isAdminRoute && (
-            <Navbar
-              isLoggedIn={isLoggedIn}
-              loggedInUser={loggedInUser}
-              onLoginClick={() => setIsLoginModalOpen(true)}
-              onLogout={handleLogout}
-              isSidebarCollapsed={isSidebarCollapsed}
-              setIsSidebarCollapsed={setIsSidebarCollapsed}
-            />
-          )}
-          {!isAdminRoute && (
-            <PublicNavbar 
-              transparent={isLandingPage}
-            />
-          )}
-          <main className={`${isAdminRoute ? 'pt-14 md:pt-0' : ''} ${isAdminRoute && isSidebarCollapsed ? 'md:pl-20' : isAdminRoute ? 'md:pl-64' : ''} transition-all`}>
-            {isAuthInitialized ? (
-              <Routes>                
-                <Route
-                  path="/admin"
-                >
-                  <Route index element={<Navigate to="dashboard" />} />
-                  <Route path='dashboard' element={<AdminDashboard />}/>
-                  <Route path='consultations' element={<AdminCons />}/>
-                  <Route path='trips'>
-                    <Route index element={<AdminTrips />}/>
-                    <Route path='create' element={<CreateTrip />}/>
-                    <Route path='view/:id' element={<ViewTrip />}/>
-                    <Route path='edit/:id' element={<EditTrip />}/>
-                  </Route>
-                  <Route path='jobs' element={<AdminJobs />}/>
-                  <Route path='cv'>
-                    <Route index element={<AdminCV />}/>
-                    <Route path='view/:id' element={<AdminCVView />}/>
-                  </Route>
-                  <Route path='calendar' element={<AdminCalendar />}/>
-                </Route>
-
-                {/* public routes */}
-                <Route path="/">
-                  <Route index element={<Landing />} />
-                  <Route path="home" element={<Home />} />
-                  <Route path="trips" element={<TripsPage />} />
-                  <Route path="trip/:id" element={<TripDetails />} />
-                  <Route path="jobs" element={<JobsPage />} />
-                  <Route path="cv" element={<UserCV />} />
-                  <Route path="visa" element={<VisaPage />} />
-                </Route>
-              </Routes>
-            ) : (
-              <div className="flex justify-center items-center h-screen text-lg">Checking authentication...</div>
+      <CurrencyProvider>
+        <Router>
+          <div className="font-sans bg-white text-gray-900">
+            {isAdminRoute && (
+              <Navbar
+                isLoggedIn={isLoggedIn}
+                loggedInUser={loggedInUser}
+                onLoginClick={() => setIsLoginModalOpen(true)}
+                onLogout={handleLogout}
+                isSidebarCollapsed={isSidebarCollapsed}
+                setIsSidebarCollapsed={setIsSidebarCollapsed}
+              />
             )}
+            {!isAdminRoute && (
+              <PublicNavbar 
+                transparent={isLandingPage}
+              />
+            )}
+            <main className={`${isAdminRoute ? 'pt-14 md:pt-0' : ''} ${isAdminRoute && isSidebarCollapsed ? 'md:pl-20' : isAdminRoute ? 'md:pl-64' : ''} transition-all`}>
+              {isAuthInitialized ? (
+                <Routes>                
+                  <Route
+                    path="/admin"
+                  >
+                    <Route index element={<Navigate to="dashboard" />} />
+                    <Route path='dashboard' element={<AdminDashboard />}/>
+                    <Route path='consultations' element={<AdminCons />}/>
+                    <Route path='trips'>
+                      <Route index element={<AdminTrips />}/>
+                      <Route path='create' element={<CreateTrip />}/>
+                      <Route path='view/:id' element={<ViewTrip />}/>
+                      <Route path='edit/:id' element={<EditTrip />}/>
+                    </Route>
+                    <Route path='jobs' element={<AdminJobs />}/>
+                    <Route path='cv'>
+                      <Route index element={<AdminCV />}/>
+                      <Route path='view/:id' element={<AdminCVView />}/>
+                    </Route>
+                    <Route path='calendar' element={<AdminCalendar />}/>
+                  </Route>
 
-          </main>
+                  {/* public routes */}
+                  <Route path="/">
+                    <Route index element={<Landing />} />
+                    <Route path="home" element={<Home />} />
+                    <Route path="trips" element={<TripsPage />} />
+                    <Route path="trip/:id" element={<TripDetails />} />
+                    <Route path="jobs" element={<JobsPage />} />
+                    <Route path="cv" element={<UserCV />} />
+                    <Route path="visa" element={<VisaPage />} />
+                    <Route path="profile" element={<ProfilePage />} />
+                  </Route>
+                </Routes>
+              ) : (
+                <div className="flex justify-center items-center h-screen text-lg">Checking authentication...</div>
+              )}
 
-          <LoginModal
-            isOpen={isLoginModalOpen}
-            onClose={() => setIsLoginModalOpen(false)}
-            onGoogleLoginSuccess={handleGoogleLoginSuccess}
-          />
-        </div>
-      </Router>
+            </main>
+
+            <LoginModal
+              isOpen={isLoginModalOpen}
+              onClose={() => setIsLoginModalOpen(false)}
+              onGoogleLoginSuccess={handleGoogleLoginSuccess}
+            />
+          </div>
+        </Router>
+      </CurrencyProvider>
     </AuthProvider>
   );
 };

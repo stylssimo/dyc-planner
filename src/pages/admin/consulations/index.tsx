@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Users, Filter, MoreHorizontal, X, Eye, Check, Loader2 } from 'lucide-react';
-import { type TableRow } from './components/mockData';
+import { type TableRow } from './components/tableRowDT';
 import { db } from '../../../firebase';
 import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
 
@@ -243,24 +243,26 @@ if (error) {
 
             <div className="flex space-x-4 mb-6">
                 <select 
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="All">All Statuses</option>
-                <option value="Active">Active</option>
-                <option value="Consulted">Consulted</option>
-                <option value="Cancelled">Cancelled</option>
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+					<option value="All">All Statuses</option>
+					<option value="Active">Active</option>
+					<option value="Consulted">Consulted</option>
+					<option value="Cancelled">Cancelled</option>
                 </select>
                 <select 
-                value={tripFilter}
-                onChange={(e) => setTripFilter(e.target.value)}
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                {uniqueTrips.map(trip => (
-                    <option key={trip} value={trip}>{trip}</option>
-                ))}
+					value={tripFilter}
+					onChange={(e) => setTripFilter(e.target.value)}
+					className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+				>
+					{uniqueTrips.map(trip => (
+						<option key={trip} value={trip}>{trip}</option>
+					))}
                 </select>
                 <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                <Filter className="w-4 h-4" />
+                	<Filter className="w-4 h-4" />
                 </button>
             </div>
 
@@ -275,6 +277,7 @@ if (error) {
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Email</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone Number</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trip</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trip ID</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Consult. Date</th>
@@ -289,10 +292,10 @@ if (error) {
                             <div className="flex items-center">
                                 <input type="checkbox" className="mr-3" />
                                 <div className="flex items-center">
-                                <img className="h-8 w-8 rounded-full" src={row.avatar} alt="" />
-                                <div className="ml-3">
-                                    <div className="text-sm font-medium text-gray-900">{row.userEmail}</div>
-                                </div>
+									<img className="h-8 w-8 rounded-full" src={row.avatar} alt="" />
+									<div className="ml-3">
+										<div className="text-sm font-medium text-gray-900">{row.userEmail}</div>
+									</div>
                                 </div>
                             </div>
                             </td>
@@ -302,6 +305,7 @@ if (error) {
                             </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.userEmail}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.phoneNumber || 'N/A'}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.tripName}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.tripId}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.consultationDate}</td>

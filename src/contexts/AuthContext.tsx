@@ -12,6 +12,7 @@ interface UserData {
   email: string | null;
   picture: string | null;
   role: string;
+  phoneNumber: string | null;
 }
 
 interface AuthContextType {
@@ -68,6 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             picture: firebaseUser.photoURL,
             role: 'user',
             createdAt: new Date().toISOString(),
+            phoneNumber: firebaseUser?.phoneNumber || "",
           });
         }
 
@@ -77,6 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           name: firebaseUser.displayName,
           email: firebaseUser.email,
           picture: firebaseUser.photoURL,
+          phoneNumber: firebaseUser.phoneNumber || "",
           role,
         };
 
