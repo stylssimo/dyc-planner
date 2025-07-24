@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Plus, MapPin, Eye, Edit, List, Image, Trash } from 'lucide-react';
-import { type TripTableRow } from './components/mockData';
+import { Search, Plus, MapPin, Eye, Edit, List, Image, Trash, Users as UsersIcon, Tag } from 'lucide-react';
+import { type TripTableRow } from './components/tableRowDT.ts';
 import { db } from '../../../firebase';
 import { collection, getDocs, query, orderBy, deleteDoc, doc, limit, startAfter, where, getDoc, setDoc } from 'firebase/firestore';
 import DeleteModal from '../../../components/DeleteModal.tsx';
+import HeroYouTube from '../../../components/HeroYoutube.tsx';
 
 // Helper function to calculate duration from dates
 const calculateDuration = (startDate: string, endDate: string): string => {
@@ -50,6 +51,14 @@ const parsePrice = (priceString: string): number => {
 const formatPrice = (price: number): string => {
 	if (price === 0) return 'TBD';
 	return `$${price.toLocaleString()}`;
+};
+
+// Add helper function for flare
+const getTripFlare = (numberOfPeople: string) => {
+    const count = parseInt(numberOfPeople);
+    if (count === 1) return { text: 'Single', color: 'bg-purple-100 text-purple-800' };
+    if (count === 2) return { text: 'Couple', color: 'bg-pink-100 text-pink-800' };
+    return { text: 'Group', color: 'bg-blue-100 text-blue-800' };
 };
 
 const AdminTrips = () => {
@@ -114,7 +123,9 @@ const AdminTrips = () => {
 					bookedCount: 0,
 					// Lazy load images - use placeholder first
 					imageUrl: data.formData?.heroImage || '/trip_hero_image.webp',
-					createdAt: data.createdAt
+					videoUrl: data.formData?.heroVideo || '',
+					createdAt: data.createdAt,
+					tripTags: data.formData?.tripTags || []
 				};
 				
 				trips.push(trip);
@@ -384,11 +395,29 @@ const AdminTrips = () => {
                         {filteredData.map((trip) => (
                           <div key={trip.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
 							<div className="relative">
-                            	<img src={trip.imageUrl} alt={trip.name} className="w-full h-48 object-cover" />
+								{trip.videoUrl ? (
+									<div>
+										<HeroYouTube
+											className="w-full h-48 object-cover"
+											videoUrl={trip.videoUrl}
+											mute={true}
+											autoPlay={false}
+										/>
+									</div>
+								) : (
+									<img src={trip.imageUrl} alt={trip.name} className="w-full h-48 object-cover" />
+								)}
 								<div className="absolute top-2 right-2 flex items-center space-x-2 bg-white rounded-lg p-2">
 									<button onClick={() => handleDeleteTrip(trip.id)} className="text-red-600 hover:text-red-800">
 										<Trash className="w-4 h-4" />
 									</button>
+								</div>
+								{/* Add flare badge */}
+								<div className="absolute bottom-2 left-2">
+									<div className={`${getTripFlare(trip.description.split(' ')[0]).color} px-2 py-1 rounded-full text-xs font-semibold flex items-center space-x-1`}>
+										<UsersIcon className="w-3 h-3" />
+										<span>{getTripFlare(trip.description.split(' ')[0]).text}</span>
+									</div>
 								</div>
 							</div>
                             <div className="p-4">
@@ -399,7 +428,18 @@ const AdminTrips = () => {
                                 </span>
                               </div>
                               <p className="text-gray-600 text-sm mb-2">{trip.country} • {trip.duration}</p>
-                              <p className="text-gray-600 text-sm mb-4 line-clamp-2">{trip.description}</p>
+                              <p className="text-gray-600 text-sm mb-2 line-clamp-2">{trip.description}</p>
+                              
+                              {/* Add tags */}
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                  {trip.tripTags.map((tag) => (
+                                    <div className="flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                                      <Tag className="w-3 h-3 mr-1" />
+                                      {tag}
+                                    </div>
+                                  ))}
+                              </div>
+
                               <div className="flex items-center justify-between">
                                 <div className="text-lg font-bold text-blue-600">{formatPrice(trip.price)}</div>
                                 <div className="text-sm text-gray-500">{trip.bookedCount} bookings</div>
@@ -429,7 +469,8 @@ const AdminTrips = () => {
                             <tr>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trip</th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bookings</th>
@@ -444,7 +485,7 @@ const AdminTrips = () => {
                                     <img className="h-10 w-10 rounded object-cover" src={trip.imageUrl} alt="" />
                                     <div className="ml-3">
                                       <div className="text-sm font-medium text-gray-900">{trip.name}</div>
-                                      <div className="text-sm text-gray-500">{trip.description.substring(0, 50)}...</div>
+                                      <div className="text-sm text-gray-500">{trip.description}</div>
                                     </div>
                                   </div>
                                 </td>
@@ -453,7 +494,23 @@ const AdminTrips = () => {
                                     {trip.status}
                                   </span>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{trip.country}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTripFlare(trip.description.split(' ')[0]).color}`}>
+                                    {getTripFlare(trip.description.split(' ')[0]).text}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="flex flex-col space-y-1">
+                                    <div className="flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded w-fit">
+                                      <MapPin className="w-3 h-3 mr-1" />
+                                      {trip.continent}
+                                    </div>
+                                    <div className="flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded w-fit">
+                                      <Tag className="w-3 h-3 mr-1" />
+                                      {trip.country}
+                                    </div>
+                                  </div>
+                                </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{trip.duration}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{formatPrice(trip.price)}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{trip.bookedCount}</td>

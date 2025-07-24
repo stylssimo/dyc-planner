@@ -1,9 +1,50 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Users, MapPin, Search, Star, Wifi, Car, X } from 'lucide-react';
+import { Calendar, Users, MapPin, Search, X, Tag } from 'lucide-react';
 import { useTrips, type PublicTrip } from '../../../hooks/useTrips';
+import HeroYouTube from '../../../components/HeroYoutube';
+import { useCurrency } from '../../../contexts/CurrencyContext';
+
+// Helper function to calculate duration from dates
+const calculateDuration = (startDate: string, endDate: string): string => {
+  if (!startDate || !endDate) return 'TBD';
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  if (end <= start) return 'TBD';
+
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 1) return '1 day';
+  if (diffDays < 7) return `${diffDays} days`;
+
+  const weeks = Math.floor(diffDays / 7);
+  const remainingDays = diffDays % 7;
+  
+  let result = '';
+  if (weeks === 1) result += '1 week';
+  else if (weeks > 1) result += `${weeks} weeks`;
+  
+  if (remainingDays > 0) {
+    if (result) result += ' ';
+    result += remainingDays === 1 ? '1 day' : `${remainingDays} days`;
+  }
+  
+  return result;
+};
+
+// Helper function to get trip type flare
+const getTripFlare = (numberOfPeople: string) => {
+  const count = parseInt(numberOfPeople);
+  if (count === 1) return { text: 'Single', color: 'bg-purple-100 text-purple-800' };
+  if (count === 2) return { text: 'Couple', color: 'bg-pink-100 text-pink-800' };
+  return { text: 'Group', color: 'bg-blue-100 text-blue-800' };
+};
 
 const TripsPage = () => {
   const { trips, loading, error, searchTrips } = useTrips();
+  const { formatPrice } = useCurrency();
   const [searchTerm, setSearchTerm] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -11,25 +52,23 @@ const TripsPage = () => {
   const [filteredTrips, setFilteredTrips] = useState<PublicTrip[]>([]);
   const [continentFilter, setContinentFilter] = useState('All Continents');
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
+  const [tripType, setTripType] = useState('All');
+
   // Get URL search parameters on component mount
-
-  console.log('asdfsdf')
-
-
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchParam = urlParams.get('search') || '';
     const startParam = urlParams.get('startDate') || '';
     const endParam = urlParams.get('endDate') || '';
     const guestsParam = urlParams.get('guests') || '2 Adults';
+    const typeParam = urlParams.get('type') || 'All';
 
     setSearchTerm(searchParam);
     setStartDate(startParam);
     setEndDate(endParam);
     setGuests(guestsParam);
-
-  console.log('asdfsdf')
-
+    setTripType(typeParam);
   }, []);
 
   // Filter trips when search parameters or trips change
@@ -41,10 +80,27 @@ const TripsPage = () => {
       if (continentFilter !== 'All Continents') {
         filtered = filtered.filter(trip => trip.continent === continentFilter);
       }
+
+      // Apply trip type filter
+      if (tripType !== 'All') {
+        filtered = filtered.filter(trip => {
+          const count = parseInt(trip.description.split(' ')[0]);
+          if (tripType === 'Single' && count === 1) return true;
+          if (tripType === 'Couple' && count === 2) return true;
+          if (tripType === 'Group' && count > 2) return true;
+          return false;
+        });
+      }
+
+      // Apply price filter
+      filtered = filtered.filter(trip => {
+        const price = parseFloat(trip.price.replace(/[^0-9.]/g, ''));
+        return !isNaN(price) && price >= priceRange[0] && price <= priceRange[1];
+      });
       
       setFilteredTrips(filtered);
     }
-  }, [trips, searchTerm, startDate, endDate, guests, continentFilter, loading]);
+  }, [trips, searchTerm, startDate, endDate, guests, continentFilter, tripType, priceRange, loading]);
 
   // Get unique continents for filter
   const uniqueContinents = ['All Continents', ...Array.from(new Set(trips.map(trip => trip.continent)))];
@@ -52,21 +108,6 @@ const TripsPage = () => {
   const handleSearch = () => {
     const filtered = searchTrips(searchTerm, startDate, endDate, guests);
     setFilteredTrips(filtered);
-  };
-
-  const formatPrice = (price: string): string => {
-    if (!price || price === 'TBD') return 'TBD';
-    
-    // If it already has currency symbol, return as is
-    if (price.includes('$')) return price;
-    
-    // Try to parse and format as currency
-    const numPrice = parseFloat(price.replace(/[^0-9.]/g, ''));
-    if (!isNaN(numPrice)) {
-      return `$${numPrice.toLocaleString()}`;
-    }
-    
-    return price;
   };
 
   if (loading) {
@@ -110,6 +151,7 @@ const TripsPage = () => {
             </div>
           </div>
           <div className="space-y-4 mt-3 md:hidden">
+              {/* Mobile Search Fields */}
               {/* Destination */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Destination</label>
@@ -266,19 +308,53 @@ const TripsPage = () => {
       {/* Filters */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex flex-wrap items-center gap-3">
             <select 
               value={continentFilter}
               onChange={(e) => setContinentFilter(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 sm:flex-none"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {uniqueContinents.map(continent => (
                 <option key={continent} value={continent}>{continent}</option>
               ))}
             </select>
-            {/* <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <Filter className="w-4 h-4" />
-            </button> */}
+
+            <select 
+              value={tripType}
+              onChange={(e) => setTripType(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="All">All Types</option>
+              <option value="Single">Single</option>
+              <option value="Couple">Couple</option>
+              <option value="Group">Group</option>
+            </select>
+
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600">Price Range:</span>
+              <input
+                type="range"
+                min="0"
+                max="10000"
+                step="100"
+                value={priceRange[0]}
+                onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
+                className="w-24"
+              />
+              <span className="text-sm text-gray-600">-</span>
+              <input
+                type="range"
+                min="0"
+                max="10000"
+                step="100"
+                value={priceRange[1]}
+                onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                className="w-24"
+              />
+              <span className="text-sm text-gray-600">
+                {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -294,65 +370,83 @@ const TripsPage = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredTrips.map((trip) => (
-              <div key={trip.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
+              <div key={trip.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
                 <div className="relative">
-                  <img 
-                    src={trip.imageUrl} 
-                    alt={trip.name}
-                    className="w-full h-40 sm:h-48 object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/trip_hero_image.webp';
-                    }}
-                  />
+                  {trip.videoUrl ? (
+                    <div className="w-full h-48">
+                      <HeroYouTube
+                        className="w-full h-48 object-cover"
+                        videoUrl={trip.videoUrl}
+                        mute={true}
+                        autoPlay={false}
+                      />
+                    </div>
+                  ) : (
+                    <img 
+                      src={trip.imageUrl} 
+                      alt={trip.name}
+                      className="w-full h-48 object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/trip_hero_image.webp';
+                      }}
+                    />
+                  )}
+                  {/* Trip Type Badge */}
+                  <div className="absolute bottom-2 left-2">
+                    <div className={`${getTripFlare(trip.numberOfPeople).color} px-2 py-1 rounded-full text-xs font-semibold flex items-center space-x-1`}>
+                      <Users className="w-3 h-3" />
+                      <span>{getTripFlare(trip.numberOfPeople).text}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="p-3 sm:p-4">
-                  {/* Title and Rating */}
-                  <div className="mb-3">
-                    <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1 text-sm sm:text-base">{trip.name}</h3>
-                    <div className="flex items-center space-x-1 mb-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star 
-                          key={star} 
-                          className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" 
-                        />
-                      ))}
-                      <span className="text-xs sm:text-sm text-gray-600 ml-1">(2,578 Reviews)</span>
+                <div className="p-4 flex flex-col flex-grow">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-semibold truncate">{trip.name}</h3>
+                  </div>
+
+                  {/* Location Tags */}
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      {trip.continent}
+                    </div>
+                    <div className="flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                      <Tag className="w-3 h-3 mr-1" />
+                      {trip.country}
                     </div>
                   </div>
 
                   {/* Duration */}
-                  <p className="text-gray-600 text-xs sm:text-sm mb-3">{trip.duration}</p>
+                  {trip.startDate && trip.endDate && (
+                    <p className="text-gray-600 text-sm mb-3">
+                      {calculateDuration(trip.startDate, trip.endDate)}
+                    </p>
+                  )}
 
-                  {/* Amenities - Responsive layout */}
-                  <div className="grid grid-cols-2 gap-2 mb-3 sm:mb-4 text-gray-600">
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="text-xs">Resort</span>
+                  {/* Trip Tags */}
+                  {trip.tripTags && trip.tripTags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {trip.tripTags.map((tag, index) => (
+                        <span key={index} className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded">
+                          {tag}
+                        </span>
+                      ))}
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <Wifi className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="text-xs">Pool</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Car className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="text-xs">Key card</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Wifi className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="text-xs">Free wifi</span>
-                    </div>
-                  </div>
+                  )}
 
-                  {/* Price and Action */}
-                  <div className="flex items-center justify-between mt-4">
+                  {/* Description */}
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-grow">{trip.description}</p>
+
+                  {/* Price and Button - This will stay at the bottom */}
+                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
                     <div className="text-left">
-                      <p className="text-lg sm:text-2xl font-bold text-gray-900">{formatPrice(trip.price)}</p>
+                      <p className="text-2xl font-bold text-gray-900">{trip.currency + '' + formatPrice(parseFloat(trip.price))}</p>
                     </div>
                     <button 
                       onClick={() => window.open(`/trip/${trip.id}`, '_blank')}
-                      className="bg-blue-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors text-xs sm:text-sm font-medium"
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                     >
-                      View Details
+                      Book Consultation
                     </button>
                   </div>
                 </div>

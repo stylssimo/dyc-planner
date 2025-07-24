@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Users, MapPin, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, MapPin, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTrips } from '../../../hooks/useTrips';
 import Footer from "../../../components/Footer";
 

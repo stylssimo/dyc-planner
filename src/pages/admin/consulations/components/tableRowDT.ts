@@ -4,7 +4,7 @@ export interface TableRow {
     userEmail: string;
     avatar: string;
     status: 'Active' | 'Consulted' | 'Cancelled';
-    phoneNumber: string;
+    userPhoneNumber: string;
     tripName: string;
     tripId: string;
     consultationDate: string;

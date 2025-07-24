@@ -3,6 +3,7 @@ import { ArrowLeft, Plus, X, Upload } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { db } from '../../../../firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import TagSelect from '../components/tagSelect';
 
 interface TripFormData {
   travelName: string;
@@ -14,6 +15,10 @@ interface TripFormData {
   pricePoint: string;
   heroImage: string; // base64 encoded hero image
   allowSpecialRequests: boolean;
+  detailedAddress: string;
+  currency: string;
+  heroVideo: string; // embed video url
+  tripTags: string[];
 }
 
 interface Stop {
@@ -135,7 +140,11 @@ const EditTrip = () => {
     numberOfPeople: '1',
     pricePoint: '',
     heroImage: '',
+    heroVideo: '',
     allowSpecialRequests: false,
+    detailedAddress: '',
+    currency: 'USD',
+    tripTags: []
   });
 
   // Stops state
@@ -196,7 +205,7 @@ const EditTrip = () => {
     fetchTripData();
   }, [id]);
 
-  const handleInputChange = (field: keyof TripFormData, value: string | boolean) => {
+  const handleInputChange = (field: keyof TripFormData, value: string | boolean | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -519,6 +528,16 @@ const EditTrip = () => {
                     />
                   </div>
 
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Detailed address"
+                      value={formData.detailedAddress}
+                      onChange={(e) => handleInputChange('detailedAddress', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
                   {/* Date Range Inputs */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -570,7 +589,7 @@ const EditTrip = () => {
                     </select>
                   </div>
 
-                  <div>
+                  <div className="flex items-center space-x-2">
                     <input
                       type="text"
                       placeholder="Price point"
@@ -578,12 +597,21 @@ const EditTrip = () => {
                       onChange={(e) => handleInputChange('pricePoint', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                    <select
+                      value={formData.currency}
+                      onChange={(e) => handleInputChange('currency', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                    >
+                      <option value="">Currency</option>
+                      <option value="USD">USD</option>
+                      <option value="MNT">MNT</option>
+                    </select>
                   </div>
 
                   {/* Hero Image Upload */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Hero Image
+                      Hero Image or Embed Video URL
                     </label>
                     <div className="flex items-center space-x-2">
                       {formData.heroImage ? (
@@ -621,7 +649,24 @@ const EditTrip = () => {
                         </div>
                       )}
                     </div>
+                    <div className="flex items-center space-x-2 py-4 justify-center">
+                      <p className="text-sm text-gray-600">OR</p>
+                    </div>
+                    <div>
+                        <input
+                          type="text"
+                          placeholder="Embed Video URL"
+                          value={formData.heroVideo}
+                          onChange={(e) => handleInputChange('heroVideo', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
                   </div>
+
+                  <TagSelect 
+                    selectedTags={formData.tripTags}
+                    onTagsChange={(newTags) => handleInputChange('tripTags', newTags)}
+                  />
 
                   <div className="flex items-center space-x-2">
                     <input
@@ -676,7 +721,7 @@ const EditTrip = () => {
                   />
                   <input
                     type="text"
-                    placeholder="City Address"
+                    placeholder="Stop Address"
                     value={newStopAddress}
                     onChange={(e) => setNewStopAddress(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"

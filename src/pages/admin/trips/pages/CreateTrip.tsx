@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { db } from '../../../../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
+import TagSelect from '../components/tagSelect';
 
 interface TripFormData {
   travelName: string;
@@ -14,7 +15,11 @@ interface TripFormData {
   numberOfPeople: string;
   pricePoint: string;
   heroImage: string; // base64 encoded hero image
+  heroVideo: string; // embed video url
   allowSpecialRequests: boolean;
+  detailedAddress: string;
+  currency: string;
+  tripTags: string[];
 }
 
 interface Stop {
@@ -39,6 +44,7 @@ interface Day {
   dayNumber: number;
   activities: Activity[];
 }
+
 
 // Image compression utility
 const compressImage = (file: File, maxSizeKB: number = 256): Promise<string> => {
@@ -87,36 +93,6 @@ const compressImage = (file: File, maxSizeKB: number = 256): Promise<string> => 
   });
 };
 
-// Helper function to calculate duration
-// const calculateDuration = (startDate: string, endDate: string): string => {
-//   if (!startDate || !endDate) return '';
-  
-//   const start = new Date(startDate);
-//   const end = new Date(endDate);
-  
-//   if (end <= start) return '';
-  
-//   const diffTime = Math.abs(end.getTime() - start.getTime());
-//   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-//   if (diffDays === 1) return '1 day';
-//   if (diffDays < 7) return `${diffDays} days`;
-  
-//   const weeks = Math.floor(diffDays / 7);
-//   const remainingDays = diffDays % 7;
-  
-//   let result = '';
-//   if (weeks === 1) result += '1 week';
-//   else if (weeks > 1) result += `${weeks} weeks`;
-  
-//   if (remainingDays > 0) {
-//     if (result) result += ' ';
-//     result += remainingDays === 1 ? '1 day' : `${remainingDays} days`;
-//   }
-  
-//   return result;
-// };
-
 const CreateTrip = () => {
   const navigate = useNavigate();
   
@@ -130,7 +106,11 @@ const CreateTrip = () => {
     numberOfPeople: '1',
     pricePoint: '',
     heroImage: '',
+    heroVideo: '',
     allowSpecialRequests: false,
+    detailedAddress: '',
+    currency: 'USD',
+    tripTags: []
   });
 
   // Stops state
@@ -171,7 +151,7 @@ const CreateTrip = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
   }, [formData, stops, days]);
 
-  const handleInputChange = (field: keyof TripFormData, value: string | boolean) => {
+  const handleInputChange = (field: keyof TripFormData, value: string | boolean | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -413,7 +393,11 @@ const CreateTrip = () => {
         numberOfPeople: '1',
         pricePoint: '',
         heroImage: '',
+        heroVideo: '',
         allowSpecialRequests: false,
+        detailedAddress: '',
+        currency: '',
+        tripTags: []
       });
       setStops([]);
       setDays([]);
@@ -453,7 +437,7 @@ const CreateTrip = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="sticky top-0 z-10 bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -462,7 +446,6 @@ const CreateTrip = () => {
                 className="flex items-center text-gray-600 hover:text-gray-800"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
-                Back to Trips
               </button>
               <h1 className="text-2xl font-bold text-gray-900">Create Itinerary</h1>
             </div>
@@ -525,6 +508,17 @@ const CreateTrip = () => {
                     />
                   </div>
 
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Detailed address"
+                      value={formData.detailedAddress}
+                      onChange={(e) => handleInputChange('detailedAddress', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+
                   {/* Date Range Inputs */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -576,7 +570,7 @@ const CreateTrip = () => {
                     </select>
                   </div>
 
-                  <div>
+                  <div className="flex items-center space-x-2">
                     <input
                       type="text"
                       placeholder="Price point"
@@ -584,12 +578,21 @@ const CreateTrip = () => {
                       onChange={(e) => handleInputChange('pricePoint', e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                    <select
+                      value={formData.currency}
+                      onChange={(e) => handleInputChange('currency', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                    >
+                      <option value="">Currency</option>
+                      <option value="USD">USD</option>
+                      <option value="MNT">MNT</option>
+                    </select>
                   </div>
 
                   {/* Hero Image Upload */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Hero Image
+                      Hero Image or Embed Video URL
                     </label>
                     <div className="flex items-center space-x-2">
                       {formData.heroImage ? (
@@ -627,7 +630,24 @@ const CreateTrip = () => {
                         </div>
                       )}
                     </div>
+                    <div className="flex items-center space-x-2 py-4 justify-center">
+                      <p className="text-sm text-gray-600">OR</p>
+                    </div>
+                    <div>
+                        <input
+                          type="text"
+                          placeholder="Embed Video URL"
+                          value={formData.heroVideo}
+                          onChange={(e) => handleInputChange('heroVideo', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
                   </div>
+
+                  <TagSelect 
+                    selectedTags={formData.tripTags}
+                    onTagsChange={(newTags) => handleInputChange('tripTags', newTags)}
+                  />
 
                   <div className="flex items-center space-x-2">
                     <input
@@ -682,7 +702,7 @@ const CreateTrip = () => {
                   />
                   <input
                     type="text"
-                    placeholder="City Address"
+                    placeholder="Stop Address"
                     value={newStopAddress}
                     onChange={(e) => setNewStopAddress(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"

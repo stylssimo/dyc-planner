@@ -3,18 +3,23 @@ import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export interface PublicTrip {
-  id: string;
-  name: string;
-  country: string;
-  continent: string;
-  duration: string;
-  description: string;
-  price: string;
-  imageUrl: string;
-  startDate: string;
-  endDate: string;
-  numberOfPeople: string;
-  location: string;
+    id: string;
+    name: string;
+    description: string;
+    imageUrl: string;
+    videoUrl?: string;
+    price: string;
+    duration: string;
+    continent: string;
+    country: string;
+    startDate?: string;
+    endDate?: string;
+    createdAt: string;
+    updatedAt?: string;
+    tripTags: string[];
+    numberOfPeople: string;
+    location: string;
+    currency: string;
 }
 
 export const useTrips = () => {
@@ -80,10 +85,15 @@ export const useTrips = () => {
               description: `Experience ${data.formData.travelName} with ${data.formData.numberOfPeople || '1'} ${parseInt(data.formData.numberOfPeople) === 1 ? 'person' : 'people'} • ${data.stops?.length || 0} amazing stops`,
               price: data.formData.pricePoint || 'TBD',
               imageUrl: data.formData.heroImage || data.days?.[0]?.activities?.[0]?.images?.[0] || '/trip_hero_image.webp',
+              videoUrl: data.formData.heroVideo || '',
               startDate: data.formData.startDate || '',
               endDate: data.formData.endDate || '',
               numberOfPeople: data.formData.numberOfPeople || '1',
-              location: `${data.formData.country}${data.formData.continent ? `, ${data.formData.continent}` : ''}`
+              location: `${data.formData.country}${data.formData.continent ? `, ${data.formData.continent}` : ''}`,
+              createdAt: data.createdAt || '',
+              updatedAt: data.updatedAt || '',
+              tripTags: data.formData.tripTags || [],
+              currency: data.formData.currency === 'MNT' ? '₮' : '$'
             };
             
             fetchedTrips.push(trip);
@@ -113,7 +123,7 @@ export const useTrips = () => {
         trip.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         trip.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
         trip.continent.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        trip.location.toLowerCase().includes(searchTerm.toLowerCase());
+        trip.country.toLowerCase().includes(searchTerm.toLowerCase());
 
       // For now, we'll just match on search term
       // Date and guest filtering can be added later when we implement more sophisticated search

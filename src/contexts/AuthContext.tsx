@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             picture: firebaseUser.photoURL,
             role: 'user',
             createdAt: new Date().toISOString(),
-            phoneNumber: firebaseUser?.phoneNumber || "",
+            phoneNumber: docSnap.data()?.profile?.personalInfo?.phoneNumber || "",
           });
         }
 
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           name: firebaseUser.displayName,
           email: firebaseUser.email,
           picture: firebaseUser.photoURL,
-          phoneNumber: firebaseUser.phoneNumber || "",
+          phoneNumber: docSnap.data()?.profile?.personalInfo?.phoneNumber || "",
           role,
         };
 

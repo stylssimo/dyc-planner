@@ -1,6 +1,6 @@
 import { useState } from 'react';
-
-type EventType = 'appointment' | 'meeting' | 'personal' | 'interview' | 'task' | 'event' | 'holiday' | 'travel';
+import { useCalendar, type EventType, type CalendarEvent as CalendarEventType } from '../../../hooks/useCalendar';
+import { Trash2, Edit2, X } from 'lucide-react';
 
 interface Event {
     title: string;
@@ -14,32 +14,212 @@ interface CalendarEvent {
     events: Event[];
 }
 
-const AdminCalendar = () => {
+interface EventDetailsModalProps {
+    event: CalendarEventType;
+    onClose: () => void;
+    onUpdate: (eventId: string, updates: { title: string; type: EventType; notes?: string; time?: string; date: string }) => void;
+    onDelete: (eventId: string) => void;
+}
 
-    // Mock data for calendar events
-    const calendarEvents: CalendarEvent[] = [
-        { date: 1, events: [{ title: 'Chincoteague', type: 'appointment' }] },
-        { date: 3, events: [{ title: 'Meeting w/ Chris', type: 'meeting' }] },
-        { date: 5, events: [{ title: 'Lunch w/ Mom', type: 'personal' }] },
-        { date: 7, events: [{ title: 'Financial Advisor Meeting', type: 'meeting' }] },
-        { date: 8, events: [{ title: 'Interview w/ Agent', type: 'interview' }, { title: 'Send follow-up email', type: 'task' }] },
-        { date: 12, events: [{ title: "Audrey's Chef Recital", type: 'event' }] },
-        { date: 15, events: [{ title: 'Vaccine appt.', type: 'appointment' }, { title: 'Take Jane to dentist', type: 'task' }] },
-        { date: 17, events: [{ title: "St. Patrick's Day", type: 'holiday' }] },
-        { date: 19, events: [{ title: 'PTO day', type: 'personal' }] },
-        { date: 20, events: [{ title: 'Dinner with Kate and Dan', type: 'personal' }] },
-        { date: 22, events: [{ title: 'Important work meeting', type: 'meeting' }] },
-        { date: 24, events: [{ title: 'Fly to Japan', type: 'travel' }] },
-        { date: 25, events: [{ title: 'Hot dog eating contest', type: 'event' }] },
-        { date: 27, events: [{ title: 'Meeting w/ Mac', type: 'meeting' }] },
-        { date: 29, events: [{ title: 'Pick up very first car appt.', type: 'appointment' }] },
-        { date: 31, events: [{ title: 'Learn something new', type: 'personal' }] }
-    ];
-    
+const EventDetailsModal = ({ event, onClose, onUpdate, onDelete }: EventDetailsModalProps) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState({
+        title: event.title,
+        type: event.type,
+        notes: event.notes || '',
+        time: event.time || '',
+        date: event.date
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onUpdate(event.id, editForm);
+        setIsEditing(false);
+    };
+
+    const handleDelete = () => {
+        if (window.confirm('Are you sure you want to delete this event?')) {
+            onDelete(event.id);
+            onClose();
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold text-gray-900">
+                        {isEditing ? 'Edit Event' : 'Event Details'}
+                    </h2>
+                    <button 
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+
+                {isEditing ? (
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Event Name *
+                            </label>
+                            <input
+                                type="text"
+                                value={editForm.title}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Event Type
+                            </label>
+                            <select
+                                value={editForm.type}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, type: e.target.value as EventType }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="appointment">Appointment</option>
+                                <option value="meeting">Meeting</option>
+                                <option value="personal">Personal</option>
+                                <option value="interview">Interview</option>
+                                <option value="task">Task</option>
+                                <option value="event">Event</option>
+                                <option value="holiday">Holiday</option>
+                                <option value="travel">Travel</option>
+                                <option value="consultation">Consultation</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Date *
+                            </label>
+                            <input
+                                type="date"
+                                value={editForm.date}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, date: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Time
+                            </label>
+                            <input
+                                type="time"
+                                value={editForm.time}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, time: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Notes
+                            </label>
+                            <textarea
+                                value={editForm.notes}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                rows={3}
+                            />
+                        </div>
+
+                        <div className="flex space-x-3 pt-4">
+                            <button
+                                type="button"
+                                onClick={() => setIsEditing(false)}
+                                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                ) : (
+                    <div className="space-y-4">
+                        <div>
+                            <h3 className="text-sm font-medium text-gray-500">Event Name</h3>
+                            <p className="mt-1 text-base text-gray-900">{event.title}</p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-sm font-medium text-gray-500">Type</h3>
+                            <p className="mt-1 text-base text-gray-900 capitalize">{event.type}</p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-sm font-medium text-gray-500">Date</h3>
+                            <p className="mt-1 text-base text-gray-900">
+                                {new Date(event.date).toLocaleDateString()}
+                            </p>
+                        </div>
+
+                        {event.time && (
+                            <div>
+                                <h3 className="text-sm font-medium text-gray-500">Time</h3>
+                                <p className="mt-1 text-base text-gray-900">{event.time}</p>
+                            </div>
+                        )}
+
+                        {event.notes && (
+                            <div>
+                                <h3 className="text-sm font-medium text-gray-500">Notes</h3>
+                                <p className="mt-1 text-base text-gray-900">{event.notes}</p>
+                            </div>
+                        )}
+
+                        <div className="flex space-x-3 pt-4">
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="flex-1 flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                <Edit2 className="w-4 h-4 mr-2" />
+                                Edit
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="flex-1 flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                            >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const AdminCalendar = () => {
+    const { 
+        events: backendEvents, 
+        loading: eventsLoading, 
+        error: eventsError, 
+        addEvent,
+        updateEvent,
+        deleteEvent, 
+        getEventsForMonth,
+        clearError
+    } = useCalendar();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<CalendarEventType | null>(null);
     const [currentView, setCurrentView] = useState<'month' | 'week' | 'year'>('month');
-    const [currentDate, setCurrentDate] = useState(new Date(2025, 2, 1)); // March 2025
-    const [events, setEvents] = useState<CalendarEvent[]>(calendarEvents);
+    const [currentDate, setCurrentDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())); // March 2025
     
     // Form state for add event modal
     const [eventForm, setEventForm] = useState({
@@ -50,6 +230,35 @@ const AdminCalendar = () => {
         time: ''
     });
 
+    // Convert backend events to the format expected by the calendar UI
+    const convertBackendEventsToCalendarEvents = (date: Date): CalendarEvent[] => {
+        const monthEvents = getEventsForMonth(date.getFullYear(), date.getMonth());
+        const groupedEvents: { [key: number]: Event[] } = {};
+        
+        monthEvents.forEach(event => {
+            const eventDate = new Date(event.date);
+            const day = eventDate.getDate();
+            
+            if (!groupedEvents[day]) {
+                groupedEvents[day] = [];
+            }
+            
+            groupedEvents[day].push({
+                title: event.title,
+                type: event.type,
+                notes: event.notes,
+                time: event.time
+            });
+        });
+
+        return Object.entries(groupedEvents).map(([day, events]) => ({
+            date: parseInt(day),
+            events
+        }));
+    };
+
+    const events = convertBackendEventsToCalendarEvents(currentDate);
+
     // Color mapping for different event types
     const eventColors: Record<EventType, string> = {
         appointment: 'bg-blue-100 text-blue-800',
@@ -59,7 +268,8 @@ const AdminCalendar = () => {
         task: 'bg-gray-100 text-gray-800',
         event: 'bg-pink-100 text-pink-800',
         holiday: 'bg-red-100 text-red-800',
-        travel: 'bg-indigo-100 text-indigo-800'
+        travel: 'bg-indigo-100 text-indigo-800',
+        consultation: 'bg-orange-100 text-orange-800'
     };
 
     // Navigation functions
@@ -114,48 +324,33 @@ const AdminCalendar = () => {
     };
 
     // Event management functions
-    const handleAddEvent = () => {
+    const handleAddEvent = async () => {
         if (!eventForm.name || !eventForm.date) {
             alert('Please fill in event name and date');
             return;
         }
 
-        const eventDate = new Date(eventForm.date);
-        const day = eventDate.getDate();
-        
-        const newEvent = {
+        const success = await addEvent({
             title: eventForm.name,
             type: eventForm.type,
-            notes: eventForm.notes,
-            time: eventForm.time
-        };
-
-        setEvents(prevEvents => {
-            const existingEventIndex = prevEvents.findIndex(e => e.date === day);
-            
-            if (existingEventIndex >= 0) {
-                // Add to existing date
-                const updatedEvents = [...prevEvents];
-                updatedEvents[existingEventIndex] = {
-                    ...updatedEvents[existingEventIndex],
-                    events: [...updatedEvents[existingEventIndex].events, newEvent]
-                };
-                return updatedEvents;
-            } else {
-                // Create new date entry
-                return [...prevEvents, { date: day, events: [newEvent] }];
-            }
+            date: eventForm.date,
+            time: eventForm.time,
+            notes: eventForm.notes
         });
 
-        // Reset form and close modal
-        setEventForm({
-            name: '',
-            type: 'event',
-            notes: '',
-            date: '',
-            time: ''
-        });
-        setIsModalOpen(false);
+        if (success) {
+            // Reset form and close modal
+            setEventForm({
+                name: '',
+                type: 'event',
+                notes: '',
+                date: '',
+                time: ''
+            });
+            setIsModalOpen(false);
+        } else {
+            alert('Failed to add event. Please try again.');
+        }
     };
 
     const handleCloseModal = () => {
@@ -168,6 +363,69 @@ const AdminCalendar = () => {
             time: ''
         });
     };
+
+    // Clear any errors when opening modal
+    const handleOpenModal = () => {
+        clearError();
+        setIsModalOpen(true);
+    };
+
+    const handleEventClick = (event: CalendarEventType) => {
+        setSelectedEvent(event);
+    };
+
+    const handleUpdateEvent = async (eventId: string, updates: { title: string; type: EventType; notes?: string; time?: string; date: string }) => {
+        const success = await updateEvent(eventId, updates);
+        if (!success) {
+            alert('Failed to update event. Please try again.');
+        }
+        setSelectedEvent(null);
+    };
+
+    const handleDeleteEvent = async (eventId: string) => {
+        const success = await deleteEvent(eventId);
+        if (!success) {
+            alert('Failed to delete event. Please try again.');
+        }
+        setSelectedEvent(null);
+    };
+
+    // Loading state
+    if (eventsLoading) {
+        return (
+            <div className="p-6 bg-gray-50 min-h-screen">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center justify-center h-64">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                            <p className="text-gray-600 mt-4">Loading calendar...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (eventsError) {
+        return (
+            <div className="p-6 bg-gray-50 min-h-screen">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center justify-center h-64">
+                        <div className="text-center">
+                            <p className="text-red-600 mb-4">{eventsError}</p>
+                            <button 
+                                onClick={() => window.location.reload()}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                            >
+                                Retry
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     // Render month view
     const renderMonthView = () => {
@@ -187,11 +445,24 @@ const AdminCalendar = () => {
             calendarDays.push(
                 <div key={day} className="min-h-24 border border-gray-100 p-1">
                     <div className="text-sm font-medium text-gray-900 mb-1">{day}</div>
-                    {hasEvents?.events.map((event, idx) => (
-                        <div key={idx} className={`text-xs p-1 mb-1 rounded truncate ${eventColors[event.type] || 'bg-gray-100 text-gray-800'}`}>
-                            {event.title}
-                        </div>
-                    ))}
+                    {hasEvents?.events.map((event, idx) => {
+                        // Find the original backend event to pass to click handler
+                        const originalEvent = backendEvents.find(e => 
+                            new Date(e.date).getDate() === day && 
+                            e.title === event.title && 
+                            e.time === event.time
+                        );
+                        
+                        return originalEvent ? (
+                            <div 
+                                key={idx} 
+                                className={`text-xs p-1 mb-1 rounded truncate cursor-pointer hover:opacity-75 ${eventColors[event.type] || 'bg-gray-100 text-gray-800'}`}
+                                onClick={() => handleEventClick(originalEvent)}
+                            >
+                                {event.title}
+                            </div>
+                        ) : null;
+                    })}
                 </div>
             );
         }
@@ -255,7 +526,9 @@ const AdminCalendar = () => {
                             {Array.from({ length: 35 }, (_, i) => {
                                 const date = i - new Date(year, index, 1).getDay() + 1;
                                 const isCurrentMonth = date >= 1 && date <= new Date(year, index + 1, 0).getDate();
-                                const hasEvents = index === 2 && events.find(e => e.date === date); // Only March has events in mock data
+                                
+                                // Check if this month has events (only check the currently selected month for now)
+                                const hasEvents = index === currentDate.getMonth() && events.find(e => e.date === date);
                                 
                                 return (
                                     <div key={i} className={`text-center py-1 ${isCurrentMonth ? 'text-gray-900' : 'text-gray-300'} ${hasEvents ? 'bg-blue-200 rounded' : ''}`}>
@@ -278,7 +551,7 @@ const AdminCalendar = () => {
                     <h1 className="text-3xl font-bold">{getHeaderTitle()}</h1>
                     <div className="flex items-center space-x-4">
                         <button 
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={handleOpenModal}
                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                         >
                             Add Event
@@ -446,6 +719,10 @@ const AdminCalendar = () => {
                                     <div className="w-3 h-3 bg-indigo-100 rounded"></div>
                                     <span>Travel</span>
                                 </div>
+                                <div className="flex items-center space-x-2">
+                                    <div className="w-3 h-3 bg-orange-100 rounded"></div>
+                                    <span>Consultation</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -498,6 +775,7 @@ const AdminCalendar = () => {
                                     <option value="event">Event</option>
                                     <option value="holiday">Holiday</option>
                                     <option value="travel">Travel</option>
+                                    <option value="consultation">Consultation</option>
                                 </select>
                             </div>
 
@@ -557,6 +835,16 @@ const AdminCalendar = () => {
                         </form>
                     </div>
                 </div>
+            )}
+
+            {/* Event Details Modal */}
+            {selectedEvent && (
+                <EventDetailsModal
+                    event={selectedEvent}
+                    onClose={() => setSelectedEvent(null)}
+                    onUpdate={handleUpdateEvent}
+                    onDelete={handleDeleteEvent}
+                />
             )}
         </div>
     );

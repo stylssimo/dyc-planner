@@ -128,7 +128,7 @@ const App = () => {
               />
             )}
             {!isAdminRoute && (
-              <PublicNavbar 
+              <PublicNavbar
                 transparent={isLandingPage}
               />
             )}

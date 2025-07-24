@@ -107,11 +107,11 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
     setShowMobileMenu(false);
   };
 
-  const handleSignUpClick = () => {
-    setAuthMode('signup');
-    setShowAuthForm(true);
-    setShowMobileMenu(false);
-  };
+  // const handleSignUpClick = () => {
+  //   setAuthMode('signup');
+  //   setShowAuthForm(true);
+  //   setShowMobileMenu(false);
+  // };
 
   const handleLoginClick = () => {
     setAuthMode('login');
@@ -158,6 +158,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
         email: user.email,
         picture: user.photoURL,
         role,
+        phoneNumber: user.phoneNumber || "",
       });
 
 

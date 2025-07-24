@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Plus, MapPin, Clock, DollarSign, Filter, MoreHorizontal, Briefcase, Eye, Edit, Trash2, X, Users, Calendar, GraduationCap, Building, Archive } from 'lucide-react';
-import { type Job } from './components/mockData';
+import { Search, Plus, MapPin, Clock, DollarSign, Filter, MoreHorizontal, Briefcase, Eye, Edit, Trash2, X, Users, Calendar, GraduationCap, Building, Archive, Upload, Star } from 'lucide-react';
+import { type Job, type MaterialNeeded } from './components/mockData';
 import { db } from '../../../firebase';
 import { collection, getDocs, query, orderBy, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
@@ -19,15 +19,18 @@ interface JobFormData {
   requirements: string[];
   responsibilities: string[];
   benefits: string[];
+  materialsNeeded: MaterialNeeded[];
   experienceLevel: string;
   workingHours: string;
   salaryMin: number;
   salaryMax: number;
   currency: string;
+  hideSalary: boolean;
   skills: string[];
   department: string;
   education: string;
   applicationDeadline: string;
+  photo: string;
 }
 
 // Modal Components (moved outside to prevent recreation)
@@ -62,6 +65,16 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+                    {selectedJob.photo && (
+                        <div className="mb-4">
+                            <img 
+                                src={selectedJob.photo} 
+                                alt={selectedJob.title} 
+                                className="w-full max-h-64 object-cover rounded-lg"
+                            />
+                        </div>
+                    )}
+
                     <div>
                         <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Job Description</h3>
                         <p className="text-sm sm:text-base text-gray-700">{selectedJob.description}</p>
@@ -90,6 +103,27 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
                         <ul className="list-disc list-inside space-y-1 text-sm sm:text-base">
                             {selectedJob.benefits.map((benefit, idx) => (
                                 <li key={idx} className="text-gray-700">{benefit}</li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Materials Needed</h3>
+                        <ul className="space-y-2">
+                            {selectedJob.materialsNeeded.map((material, idx) => (
+                                <li 
+                                    key={idx} 
+                                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg ${
+                                        material.isImportant ? 'bg-yellow-50 border border-yellow-100' : ''
+                                    }`}
+                                >
+                                    {material.isImportant && (
+                                        <Star className="w-4 h-4 text-yellow-500 fill-current flex-shrink-0" />
+                                    )}
+                                    <span className={`text-gray-700 ${material.isImportant ? 'font-medium' : ''}`}>
+                                        {material.text}
+                                    </span>
+                                </li>
                             ))}
                         </ul>
                     </div>
@@ -126,10 +160,12 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, getSt
                                 <Clock className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.workingHours}</span>
                             </div>
-                            <div className="flex items-center">
-                                <DollarSign className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
-                                <span>{formatSalary(selectedJob)}</span>
-                            </div>
+                            {!selectedJob.hideSalary && (
+                                <div className="flex items-center">
+                                    <DollarSign className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
+                                    <span>{formatSalary(selectedJob)}</span>
+                                </div>
+                            )}
                             <div className="flex items-center">
                                 <GraduationCap className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.education}</span>
@@ -174,7 +210,28 @@ function CreateEditJobModal({
     removeArrayItem 
 }: Pick<ModalProps, 'currentModal' | 'formData' | 'closeModal' | 'handleCreateJob' | 'handleUpdateJob' | 'updateFormField' | 'updateArrayField' | 'addArrayItem' | 'removeArrayItem'>) {
     const isEditing = currentModal === 'edit';
+
+    const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result as string;
+                updateFormField('photo', base64String);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
     
+    const updateMaterialImportance = (index: number) => {
+        const updatedMaterials = [...formData.materialsNeeded];
+        updatedMaterials[index] = {
+            ...updatedMaterials[index],
+            isImportant: !updatedMaterials[index].isImportant
+        };
+        updateFormField('materialsNeeded', updatedMaterials);
+    };
+
     return (
         <div className="p-4 sm:p-6">
             <div className="flex justify-between items-center mb-6">
@@ -187,6 +244,45 @@ function CreateEditJobModal({
             </div>
 
             <form onSubmit={(e) => { e.preventDefault(); isEditing ? handleUpdateJob() : handleCreateJob(); }} className="space-y-4 sm:space-y-6">
+                <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Job Photo</label>
+                    <div className="flex items-center space-x-4">
+                        {formData.photo ? (
+                            <div className='relative group'>
+                                <img 
+                                    src={formData.photo} 
+                                    alt="Job preview" 
+                                    className="h-20 w-20 object-cover rounded-lg"
+                                />
+                                <button
+                                    onClick={() => updateFormField('photo', '')}
+                                    className='absolute top-0 right-0 bg-white rounded-full p-1'
+                                >
+                                    <X className='w-4 h-4 text-red-500' />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="h-20 w-20 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
+                                <input
+                                    type="file"
+                                    id={`photo`}
+                                    accept="image/*"
+                                    onChange={handlePhotoUpload}
+                                    className="hidden"
+                                />
+                                <label htmlFor={`photo`} className="cursor-pointer">
+                                <Upload className="w-4 h-4 text-gray-400 mx-auto mb-2" />
+                                <p className="text-xs text-gray-600">
+                                    Upload Photo
+                                </p>
+                                </label>
+                            </div>
+                        )
+                        }
+
+                        
+                    </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Job Title</label>
@@ -346,6 +442,17 @@ function CreateEditJobModal({
                     </div>
                 </div>
 
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        id="hideSalary"
+                        checked={formData.hideSalary}
+                        onChange={(e) => updateFormField('hideSalary', e.target.checked)}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="hideSalary" className="text-sm text-gray-700">Hide salary in job listing</label>
+                </div>
+
                 <div>
                     <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Job Description</label>
                     <textarea
@@ -372,7 +479,9 @@ function CreateEditJobModal({
                 {/* Dynamic array fields */}
                 {['requirements', 'responsibilities', 'benefits', 'skills'].map((field) => (
                     <div key={field}>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 capitalize">{field}</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 capitalize">
+                            {field === 'materialsNeeded' ? 'Materials Needed' : field}
+                        </label>
                         <div className="space-y-2">
                             {(formData[field as keyof JobFormData] as string[]).map((item, index) => (
                                 <div key={index} className="flex space-x-2">
@@ -381,7 +490,7 @@ function CreateEditJobModal({
                                         value={item}
                                         onChange={(e) => updateArrayField(field as keyof JobFormData, index, e.target.value)}
                                         className="flex-1 px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder={`Enter ${field.slice(0, -1)}`}
+                                        placeholder={`Enter ${field === 'materialsNeeded' ? 'material needed' : field.slice(0, -1)}`}
                                     />
                                     <button
                                         type="button"
@@ -398,11 +507,67 @@ function CreateEditJobModal({
                                 className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
                             >
                                 <Plus className="w-4 h-4 mr-1" />
-                                Add {field.slice(0, -1)}
+                                Add {field === 'materialsNeeded' ? 'material' : field.slice(0, -1)}
                             </button>
                         </div>
                     </div>
                 ))}
+
+                {/* Materials Needed - Special handling */}
+                <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                        Materials Needed
+                    </label>
+                    <div className="space-y-2">
+                        {formData.materialsNeeded.map((material, index) => (
+                            <div key={index} className="flex space-x-2">
+                                <input
+                                    type="text"
+                                    value={material.text}
+                                    onChange={(e) => {
+                                        const updatedMaterials = [...formData.materialsNeeded];
+                                        updatedMaterials[index] = {
+                                            ...updatedMaterials[index],
+                                            text: e.target.value
+                                        };
+                                        updateFormField('materialsNeeded', updatedMaterials);
+                                    }}
+                                    className="flex-1 px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Enter material needed"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => updateMaterialImportance(index)}
+                                    className={`p-2 rounded-lg transition-colors ${
+                                        material.isImportant 
+                                            ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200' 
+                                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                                    }`}
+                                >
+                                    <Star className={`w-4 h-4 ${material.isImportant ? 'fill-current' : ''}`} />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => removeArrayItem('materialsNeeded', index)}
+                                    className="text-red-600 hover:text-red-800 p-2"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const newMaterials = [...formData.materialsNeeded, { text: '', isImportant: false }];
+                                updateFormField('materialsNeeded', newMaterials);
+                            }}
+                            className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
+                        >
+                            <Plus className="w-4 h-4 mr-1" />
+                            Add material
+                        </button>
+                    </div>
+                </div>
 
                 <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-4">
                     <button
@@ -485,25 +650,28 @@ const AdminJobs = () => {
     const [currentModal, setCurrentModal] = useState<ModalType>(null);
     const [selectedJob, setSelectedJob] = useState<Job | null>(null);
     const [formData, setFormData] = useState<JobFormData>({
-      title: '',
-      position: '',
-      company: '',
-      location: '',
-      type: 'Full-time',
-      status: 'Active',
-      description: '',
-      requirements: [''],
-      responsibilities: [''],
-      benefits: [''],
-      experienceLevel: '',
-      workingHours: '',
-      salaryMin: 0,
-      salaryMax: 0,
-      currency: 'GBP',
-      skills: [''],
-      department: '',
-      education: '',
-      applicationDeadline: '',
+        title: '',
+        position: '',
+        company: '',
+        location: '',
+        type: 'Full-time',
+        status: 'Active',
+        description: '',
+        requirements: [''],
+        responsibilities: [''],
+        benefits: [''],
+        materialsNeeded: [{ text: '', isImportant: false }],
+        experienceLevel: '',
+        workingHours: '',
+        salaryMin: 0,
+        salaryMax: 0,
+        currency: 'GBP',
+        hideSalary: false,
+        skills: [''],
+        department: '',
+        education: '',
+        applicationDeadline: '',
+        photo: '',
     });
 
     // Fetch jobs from Firebase
@@ -618,18 +786,20 @@ const AdminJobs = () => {
             setFormData({
                 title: '', position: '', company: '', location: '', type: 'Full-time', status: 'Active',
                 description: '', requirements: [''], responsibilities: [''], benefits: [''],
-                experienceLevel: '', workingHours: '', salaryMin: 0, salaryMax: 0, currency: 'GBP',
-                skills: [''], department: '', education: '', applicationDeadline: '',
+                materialsNeeded: [{ text: '', isImportant: false }], experienceLevel: '', workingHours: '', salaryMin: 0, salaryMax: 0, currency: 'GBP',
+                hideSalary: false, skills: [''], department: '', education: '', applicationDeadline: '',
+                photo: '',
             });
         } else if (type === 'edit' && job) {
             setFormData({
                 title: job.title, position: job.position, company: job.company, location: job.location,
                 type: job.type, status: job.status, description: job.description,
                 requirements: job.requirements, responsibilities: job.responsibilities, benefits: job.benefits,
-                experienceLevel: job.experienceLevel, workingHours: job.workingHours,
+                materialsNeeded: job.materialsNeeded, experienceLevel: job.experienceLevel, workingHours: job.workingHours,
                 salaryMin: job.salaryMin, salaryMax: job.salaryMax, currency: job.currency,
-                skills: job.skills, department: job.department, education: job.education,
+                hideSalary: job.hideSalary, skills: job.skills, department: job.department, education: job.education,
                 applicationDeadline: job.applicationDeadline,
+                photo: job.photo || '',
             });
         }
     };
@@ -873,9 +1043,11 @@ const AdminJobs = () => {
                                 <div className="p-4 sm:p-6">
                                     <div className="flex flex-col sm:flex-row items-start justify-between">
                                         <div className="flex items-start space-x-4 flex-1 w-full">
-                                            {/* Company Icon */}
-                                            <div className={`hidden sm:flex w-16 h-16 ${getCompanyIconColor(index)} rounded-lg items-center justify-center text-white font-bold text-lg`}>
-                                                {job.company.charAt(0)}
+                                            {/* Company Icon or Photo */}
+                                            <div className={`hidden sm:flex w-16 h-16 ${job.photo ? '' : getCompanyIconColor(index)} rounded-lg items-center justify-center text-white font-bold text-lg overflow-hidden`}>
+                                                {job.photo ? (
+                                                    <img src={job.photo} alt={job.company} className="w-full h-full object-cover" />
+                                                ) : job.company.charAt(0)}
                                             </div>
                                             
                                             {/* Job Details */}
@@ -937,10 +1109,12 @@ const AdminJobs = () => {
                                                         <Clock className="w-4 h-4 mr-1" />
                                                         {job.workingHours}
                                                     </div>
-                                                    <div className="flex items-center">
-                                                        <DollarSign className="w-4 h-4 mr-1" />
-                                                        {formatSalary(job)}
-                                                    </div>
+                                                    {!job.hideSalary && (
+                                                        <div className="flex items-center">
+                                                            <DollarSign className="w-4 h-4 mr-1" />
+                                                            {formatSalary(job)}
+                                                        </div>
+                                                    )}
                                                     <div className="flex items-center">
                                                         <Users className="w-4 h-4 mr-1" />
                                                         {job.applicationsCount} applications

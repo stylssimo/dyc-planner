@@ -1,3 +1,8 @@
+export type MaterialNeeded = {
+    text: string;
+    isImportant: boolean;
+};
+
 export type Job = {
     id: string;
     title: string;
@@ -10,11 +15,13 @@ export type Job = {
     requirements: string[];
     responsibilities: string[];
     benefits: string[];
+    materialsNeeded: MaterialNeeded[];
     experienceLevel: string;
     workingHours: string;
     salaryMin: number;
     salaryMax: number;
     currency: string;
+    hideSalary: boolean;
     skills: string[];
     department: string;
     education: string;
@@ -23,6 +30,7 @@ export type Job = {
     applicationsCount: number;
     createdAt: string;
     updatedAt: string;
+    photo?: string;
 };
 
 export const mockJobsData: Job[] = [
@@ -71,7 +79,14 @@ export const mockJobsData: Job[] = [
         postedDate: '2024-01-15',
         applicationsCount: 23,
         createdAt: '2024-01-15T09:00:00Z',
-        updatedAt: '2024-01-15T09:00:00Z'
+        updatedAt: '2024-01-15T09:00:00Z',
+        materialsNeeded: [
+            { text: 'Laptop', isImportant: true },
+            { text: 'Development environment', isImportant: false },
+            { text: 'High-speed internet', isImportant: true }
+        ],
+        hideSalary: false,
+        photo: '',
     },
     {
         id: '2',
@@ -118,7 +133,14 @@ export const mockJobsData: Job[] = [
         postedDate: '2024-01-10',
         applicationsCount: 18,
         createdAt: '2024-01-10T10:30:00Z',
-        updatedAt: '2024-01-10T10:30:00Z'
+        updatedAt: '2024-01-10T10:30:00Z',
+        materialsNeeded: [
+            { text: 'Laptop', isImportant: true },
+            { text: 'Project management tools', isImportant: false },
+            { text: 'Communication tools', isImportant: true }
+        ],
+        hideSalary: false,
+        photo: '',
     },
     {
         id: '3',
@@ -165,7 +187,14 @@ export const mockJobsData: Job[] = [
         postedDate: '2024-01-08',
         applicationsCount: 31,
         createdAt: '2024-01-08T14:15:00Z',
-        updatedAt: '2024-01-08T14:15:00Z'
+        updatedAt: '2024-01-08T14:15:00Z',
+        materialsNeeded: [
+            { text: 'Design workstation', isImportant: true },
+            { text: 'Graphics tablet', isImportant: false },
+            { text: 'Design software licenses', isImportant: true }
+        ],
+        hideSalary: true,
+        photo: '',
     },
     {
         id: '4',
@@ -212,7 +241,14 @@ export const mockJobsData: Job[] = [
         postedDate: '2024-01-20',
         applicationsCount: 0,
         createdAt: '2024-01-20T11:45:00Z',
-        updatedAt: '2024-01-20T11:45:00Z'
+        updatedAt: '2024-01-20T11:45:00Z',
+        materialsNeeded: [
+            { text: 'Laptop', isImportant: true },
+            { text: 'Cloud platform access', isImportant: false },
+            { text: 'Development tools', isImportant: true }
+        ],
+        hideSalary: false,
+        photo: '',
     },
     {
         id: '5',
@@ -259,7 +295,14 @@ export const mockJobsData: Job[] = [
         postedDate: '2024-01-12',
         applicationsCount: 15,
         createdAt: '2024-01-12T16:20:00Z',
-        updatedAt: '2024-01-12T16:20:00Z'
+        updatedAt: '2024-01-12T16:20:00Z',
+        materialsNeeded: [
+            { text: 'Computer', isImportant: true },
+            { text: 'Marketing software subscriptions', isImportant: false },
+            { text: 'Analytics tools', isImportant: true }
+        ],
+        hideSalary: true,
+        photo: '',
     },
     {
         id: '6',
@@ -306,6 +349,13 @@ export const mockJobsData: Job[] = [
         postedDate: '2024-01-05',
         applicationsCount: 12,
         createdAt: '2024-01-05T13:10:00Z',
-        updatedAt: '2024-01-18T09:30:00Z'
+        updatedAt: '2024-01-18T09:30:00Z',
+        materialsNeeded: [
+            { text: 'Workstation', isImportant: true },
+            { text: 'Data analysis software', isImportant: false },
+            { text: 'Database access', isImportant: true }
+        ],
+        hideSalary: false,
+        photo: '',
     }
 ]; 

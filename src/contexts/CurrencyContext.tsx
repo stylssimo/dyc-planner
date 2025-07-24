@@ -1,28 +1,48 @@
 // src/context/CurrencyContext.tsx
-import React, { createContext, useState, useContext } from 'react';
+import { createContext, useContext, useState } from 'react';
+import type { ReactNode } from 'react';
 
-type Currency = 'USD' | 'MNT';
+export type Currency = 'USD' | 'MNT';
 
-const CurrencyContext = createContext<{
-  currency: Currency;
-  toggleCurrency: () => void;
-}>({
-  currency: 'USD',
-  toggleCurrency: () => {},
-});
+interface CurrencyContextType {
+    currency: Currency;
+    toggleCurrency: () => void;
+    formatPrice: (price: number) => string;
+}
 
-export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currency, setCurrency] = useState<Currency>('USD');
+const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
-  const toggleCurrency = () => {
-    setCurrency((prev) => (prev === 'USD' ? 'MNT' : 'USD'));
-  };
+export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
+    const [currency, setCurrency] = useState<Currency>('USD');
 
-  return (
-    <CurrencyContext.Provider value={{ currency, toggleCurrency }}>
-      {children}
-    </CurrencyContext.Provider>
-  );
+    const toggleCurrency = () => {
+        setCurrency(prev => prev === 'USD' ? 'MNT' : 'USD');
+    };
+
+    const formatPrice = (price: number): string => {
+        if (price === 0) return 'TBD';
+        
+        // Convert USD to MNT if needed (using a conversion rate)
+        const convertedPrice = currency === 'MNT' ? price * 3450 : price;
+
+        if (currency === 'MNT') {
+            return `${convertedPrice.toLocaleString()}`;
+        }
+
+        return `${convertedPrice.toLocaleString()}`;
+    };
+
+    return (
+        <CurrencyContext.Provider value={{ currency, toggleCurrency, formatPrice }}>
+            {children}
+        </CurrencyContext.Provider>
+    );
 };
 
-export const useCurrency = () => useContext(CurrencyContext);
+export const useCurrency = () => {
+    const context = useContext(CurrencyContext);
+    if (context === undefined) {
+        throw new Error('useCurrency must be used within a CurrencyProvider');
+    }
+    return context;
+};

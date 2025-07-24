@@ -3,6 +3,7 @@ import { ArrowLeft, MapPin, Calendar, Users, Star, Clock, Camera } from 'lucide-
 import { useNavigate, useParams } from 'react-router-dom';
 import { db } from '../../../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import HeroYouTube from '../../../../components/HeroYoutube';
 
 interface TripFormData {
   travelName: string;
@@ -14,6 +15,9 @@ interface TripFormData {
   pricePoint: string;
   heroImage: string;
   allowSpecialRequests: boolean;
+  detailedAddress: string;
+  currency: string;
+  heroVideo: string; // embed video url
 }
 
 interface Stop {
@@ -192,45 +196,49 @@ const ViewTrip = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="sticky top-0 z-10 bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <button
             onClick={() => navigate('/admin/trips')}
             className="flex items-center text-gray-600 hover:text-gray-800 mb-2"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Trips
+            <h1 className="text-2xl font-bold text-gray-900">View Itinerary</h1>
           </button>
         </div>
       </div>
 
       {/* Hero Section */}
       <div className="relative">
-        {formData.heroImage ? (
+        {formData.heroVideo ? (
+          <HeroYouTube
+            videoUrl={formData.heroVideo}
+            mute={false}
+            className="w-full h-96 object-cover"
+            autoPlay={true}
+          />
+        ) : 
+          formData?.heroImage ? 
+        (
           <div className="h-96 bg-gray-200 overflow-hidden">
             <img
               src={formData.heroImage}
               alt={formData.travelName}
               className="w-full h-full object-cover"
             />
+            
           </div>
-        ) : (
-          <div className="h-96 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-            <div className="text-center text-white">
-              <h1 className="text-4xl font-bold mb-2">{formData.travelName}</h1>
-              <p className="text-xl opacity-90">{formData.country}</p>
-            </div>
-          </div>
-        )}
-        
-        {formData.heroImage && (
+        ) :
+        (
+          <div className="h-96 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center"/>
+        )
+      }
           <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
             <div className="text-center text-white">
               <h1 className="text-4xl font-bold mb-2">{formData.travelName}</h1>
               <p className="text-xl opacity-90">{formData.country}</p>
             </div>
           </div>
-        )}
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -275,7 +283,7 @@ const ViewTrip = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Price</p>
-                <p className="font-semibold">${formData.pricePoint || 'TBD'}</p>
+                <p className="font-semibold">{formData.currency} {formData.pricePoint || 'TBD'}</p>
               </div>
             </div>
           </div>
