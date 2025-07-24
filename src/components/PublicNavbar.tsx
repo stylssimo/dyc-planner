@@ -16,19 +16,19 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
   // Use global auth context
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
-  
+
   // Mobile menu state
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  
+
   // Animated auth state
   const [showAuthForm, setShowAuthForm] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
-  
+
   // User dropdown state
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  
+
   // Email auth state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -95,7 +95,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
     navigate('/jobs');
     setShowMobileMenu(false);
   };
-  
+
   const handleAdminViewClick = () => {
     navigate('/admin/dashboard', { replace: true });
     window.location.reload();
@@ -120,23 +120,51 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      const userRef = doc(db, 'users', user.email!);
-      const docSnap = await getDoc(userRef);
+      if (!user.email) {
+        throw new Error('Email not found in Google account');
+      }
 
+      const userRef = doc(db, 'users', user.email);
+      let docSnap = await getDoc(userRef);
+
+      // If user doc doesn't exist, create it
       if (!docSnap.exists()) {
+        const isAdmin = user.email === 'a.uuganbayar@gmail.com'; // ✅ Your admin email
+        const role = isAdmin ? 'admin' : 'user';
+
         await setDoc(userRef, {
           name: user.displayName,
           email: user.email,
           picture: user.photoURL,
-          role: 'user',
+          role,
+          createdAt: new Date().toISOString(),
         });
+
+        // 🔁 Re-fetch after set
+        docSnap = await getDoc(userRef);
       }
+
+      const role = docSnap.data()?.role || 'user';
+
+      // ✅ Set user in context
+      setUser({
+        uid: user.uid,
+        name: user.displayName,
+        email: user.email,
+        picture: user.photoURL,
+        role,
+      });
+
+
+      alert(`You are logged in as: ${role.toUpperCase()}`);
 
       setShowAuthForm(false);
     } catch (error) {
       console.error('Google auth failed:', error);
+      alert('Google authentication failed. Please try again.');
     }
   };
+
 
   const closeAuthForm = () => {
     setShowAuthForm(false);
@@ -152,7 +180,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
 
     try {
       let userCredential;
-      
+
       if (authMode === 'signup') {
         userCredential = await createUserWithEmailAndPassword(auth, email, password);
       } else {
@@ -160,7 +188,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
       }
 
       const user = userCredential.user;
-      
+
       // Save user data to Firestore
       const userRef = doc(db, 'users', user.email!);
       const docSnap = await getDoc(userRef);
@@ -184,7 +212,7 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
   };
 
   const navClasses = `bg-black sticky top-0 left-0 right-0 z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-4 transition-all duration-700 ease-in-out ${showAuthForm ? 'z-0' : 'z-20'}`
-    // : `sticky bg-black z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-4`;
+  // : `sticky bg-black z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-4`;
 
   const textClasses = transparent ? 'text-white' : 'text-white';
   const logoClasses = transparent ? 'text-white text-xl md:text-2xl font-bold flex items-center' : 'text-white text-xl md:text-2xl font-bold flex items-center';
@@ -206,32 +234,38 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
           <button onClick={handleTripsClick} className="hover:text-gray-300 transition-colors">Trips</button>
           <button onClick={handleJobsClick} className="hover:text-gray-300 transition-colors">Jobs</button>
           <button onClick={handleVisaClick} className="hover:text-gray-300 transition-colors">Visa</button>
-          <button onClick={handleAdminViewClick} className="hover:text-gray-300 transition-colors">Admin Screen</button>
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setShowUserDropdown(!showUserDropdown)}
                 className="flex items-center space-x-2 hover:text-gray-300 transition-colors"
               >
-                <img 
-                  src={user.picture || ''} 
-                  alt={user.name || ''} 
+                <img
+                  src={user.picture || ''}
+                  alt={user.name || ''}
                   className="w-8 h-8 rounded-full border-2 border-current"
                 />
                 <span className="text-sm">{user.name?.split(' ')[0]}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showUserDropdown ? 'rotate-180' : ''}`} />
               </button>
-              
+
               {/* User Dropdown Menu */}
-              <div className={`absolute right-0 top-full mt-2 w-48 bg-white rounded-lg border border-gray-200 py-1 transition-all duration-200 transform origin-top-right ${
-                showUserDropdown 
-                  ? 'opacity-100 scale-100 translate-y-0' 
-                  : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
-              }`}>
+              <div className={`absolute right-0 top-full mt-2 w-48 bg-white rounded-lg border border-gray-200 py-1 transition-all duration-200 transform origin-top-right ${showUserDropdown
+                ? 'opacity-100 scale-100 translate-y-0'
+                : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+                }`}>
                 <div className="px-4 py-2 border-b border-gray-100">
                   <p className="text-sm font-medium text-gray-900">{user.name}</p>
                   <p className="text-xs text-gray-500">{user.email}</p>
                 </div>
+                {user?.role === 'admin' && (
+                  <button
+                    onClick={handleAdminViewClick}
+                    className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    Admin Screen
+                  </button>
+                )}
                 <button
                   onClick={handleMyCVClick}
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center space-x-2"
@@ -249,7 +283,6 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
           ) : (
             <>
               <button onClick={handleLoginClick} className="hover:text-gray-300 transition-colors">Login</button>
-              <button onClick={handleSignUpClick} className="hover:text-gray-300 transition-colors">Sign Up</button>
             </>
           )}
         </div>
@@ -266,16 +299,14 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
       </nav>
 
       {/* Mobile Menu Overlay */}
-      <div className={`md:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
-        showMobileMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'
-      }`} />
+      <div className={`md:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${showMobileMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`} />
 
       {/* Mobile Menu */}
-      <div 
+      <div
         ref={mobileMenuRef}
-        className={`md:hidden fixed top-0 right-0 h-full w-80 max-w-[90vw] bg-white transform transition-all duration-300 ease-in-out z-50 ${
-          showMobileMenu ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className={`md:hidden fixed top-0 right-0 h-full w-80 max-w-[90vw] bg-white transform transition-all duration-300 ease-in-out z-50 ${showMobileMenu ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         <div className="p-6">
           {/* Mobile Menu Header */}
@@ -291,45 +322,38 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
 
           {/* Mobile Menu Items */}
           <div className="space-y-4">
-            <button 
-              onClick={handleLandingClick} 
+            <button
+              onClick={handleLandingClick}
               className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               Home
             </button>
-            <button 
-              onClick={handleTripsClick} 
+            <button
+              onClick={handleTripsClick}
               className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               Trips
             </button>
-            <button 
-              onClick={handleJobsClick} 
+            <button
+              onClick={handleJobsClick}
               className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               Jobs
             </button>
-            <button 
-              onClick={handleVisaClick} 
+            <button
+              onClick={handleVisaClick}
               className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               Visa
             </button>
-            <button 
-              onClick={handleAdminViewClick} 
-              className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              Admin Screen
-            </button>
-
             {user ? (
               <>
                 {/* User Info in Mobile */}
                 <div className="border-t border-gray-200 pt-4 mt-6">
                   <div className="flex items-center space-x-3 px-4 py-3">
-                    <img 
-                      src={user.picture || ''} 
-                      alt={user.name || ''} 
+                    <img
+                      src={user.picture || ''}
+                      alt={user.name || ''}
                       className="w-10 h-10 rounded-full border-2 border-gray-200"
                     />
                     <div>
@@ -337,7 +361,14 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
                       <p className="text-sm text-gray-500">{user.email}</p>
                     </div>
                   </div>
-                  
+                  {user?.role === 'admin' && (
+                    <button
+                      onClick={handleAdminViewClick}
+                      className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors mt-2"
+                    >
+                      Admin Screen
+                    </button>
+                  )}
                   <button
                     onClick={handleMyCVClick}
                     className="block w-full text-left py-3 px-4 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors mt-2"
@@ -354,17 +385,11 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
               </>
             ) : (
               <div className="border-t border-gray-200 pt-4 mt-6 space-y-2">
-                <button 
-                  onClick={handleLoginClick} 
+                <button
+                  onClick={handleLoginClick}
                   className="block w-full py-3 px-4 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-600"
                 >
                   Login
-                </button>
-                <button 
-                  onClick={handleSignUpClick} 
-                  className="block w-full py-3 px-4 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                >
-                  Sign Up
                 </button>
               </div>
             )}
@@ -373,17 +398,15 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
       </div>
 
       {/* Auth Form Backdrop */}
-      <div className={`fixed inset-0 bg-black/50 transition-opacity duration-700 ease-in-out z-40 ${
-        showAuthForm ? 'opacity-100' : 'opacity-0 pointer-events-none'
-      }`} />
+      <div className={`fixed inset-0 bg-black/50 transition-opacity duration-700 ease-in-out z-40 ${showAuthForm ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`} />
 
       {/* Animated Auth Form */}
-      <div className={`fixed right-0 top-0 h-full w-full md:w-96 bg-white/95 backdrop-blur-lg transform transition-all duration-700 ease-in-out z-50 ${
-        showAuthForm ? 'translate-x-0' : 'translate-x-full'
-      }`}>
+      <div className={`fixed right-0 top-0 h-full w-full md:w-96 bg-white/95 backdrop-blur-lg transform transition-all duration-700 ease-in-out z-50 ${showAuthForm ? 'translate-x-0' : 'translate-x-full'
+        }`}>
         <div className="p-6 md:p-8 h-full flex flex-col justify-center">
           {/* Close Button */}
-          <button 
+          <button
             onClick={closeAuthForm}
             className="absolute top-8 md:top-12 right-4 md:right-6 text-gray-600 hover:text-gray-800 z-50 transition-colors"
           >
@@ -396,8 +419,8 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
               {authMode === 'login' ? 'Welcome back' : 'Join DYC'}
             </h2>
             <p className="text-gray-600">
-              {authMode === 'login' 
-                ? 'Sign in to your account' 
+              {authMode === 'login'
+                ? 'Sign in to your account'
                 : 'Create your account to start exploring'
               }
             </p>
@@ -471,8 +494,8 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
           {/* Switch Auth Mode */}
           <div className="text-center">
             <p className="text-gray-600 text-sm md:text-base">
-              {authMode === 'login' 
-                ? "Don't have an account? " 
+              {authMode === 'login'
+                ? "Don't have an account? "
                 : "Already have an account? "
               }
               <button
