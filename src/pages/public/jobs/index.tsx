@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, MapPin, Clock, DollarSign, Briefcase, Eye, X, Users, Calendar, GraduationCap, Building, Send, Check } from 'lucide-react';
+import { Search, MapPin, Clock, DollarSign, Briefcase, Eye, X, Users, Calendar, GraduationCap, Building, Send, Check, Star } from 'lucide-react';
 import type { Job } from './components/mockData';
 import { db } from '../../../firebase';
 import { collection, getDocs, query, orderBy, doc, getDoc, addDoc, setDoc, where } from 'firebase/firestore';
@@ -68,6 +68,16 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, sendC
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+                    {selectedJob.photo && (
+                        <div className="mb-4">
+                            <img 
+                                src={selectedJob.photo} 
+                                alt={selectedJob.title} 
+                                className="w-full max-h-64 object-cover rounded-lg"
+                            />
+                        </div>
+                    )}
+
                     <div>
                         <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Job Description</h3>
                         <p className="text-sm sm:text-base text-gray-700">{selectedJob.description}</p>
@@ -99,6 +109,29 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, sendC
                             ))}
                         </ul>
                     </div>
+
+                    {selectedJob.materialsNeeded && selectedJob.materialsNeeded.length > 0 && (
+                        <div>
+                            <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Materials Needed</h3>
+                            <ul className="space-y-2">
+                                {selectedJob.materialsNeeded.map((material, idx) => (
+                                    <li 
+                                        key={idx} 
+                                        className={`flex items-center space-x-2 px-3 py-2 rounded-lg ${
+                                            material.isImportant ? 'bg-yellow-50 border border-yellow-100' : ''
+                                        }`}
+                                    >
+                                        {material.isImportant && (
+                                            <Star className="w-4 h-4 text-yellow-500 fill-current flex-shrink-0" />
+                                        )}
+                                        <span className={`text-gray-700 ${material.isImportant ? 'font-medium' : ''}`}>
+                                            {material.text}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
 
                     <div>
                         <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Skills Required</h3>
@@ -132,10 +165,12 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, sendC
                                 <Clock className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.workingHours}</span>
                             </div>
-                            <div className="flex items-center">
-                                <DollarSign className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
-                                <span>{formatSalary(selectedJob)}</span>
-                            </div>
+                            {!selectedJob.hideSalary && (
+                                <div className="flex items-center">
+                                    <DollarSign className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
+                                    <span>{formatSalary(selectedJob)}</span>
+                                </div>
+                            )}
                             <div className="flex items-center">
                                 <GraduationCap className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
                                 <span>{selectedJob.education}</span>
@@ -554,9 +589,11 @@ const JobsPage = () => {
                                 <div className="p-4 sm:p-6">
                                     <div className="flex flex-col sm:flex-row items-start justify-between">
                                         <div className="flex items-start space-x-4 flex-1 w-full">
-                                            {/* Company Icon */}
-                                            <div className={`hidden sm:flex w-16 h-16 ${getCompanyIconColor(index)} rounded-lg items-center justify-center text-white font-bold text-lg`}>
-                                                {job.company.charAt(0)}
+                                            {/* Company Icon or Photo */}
+                                            <div className={`hidden sm:flex w-16 h-16 ${job.photo ? '' : getCompanyIconColor(index)} rounded-lg items-center justify-center text-white font-bold text-lg overflow-hidden`}>
+                                                {job.photo ? (
+                                                    <img src={job.photo} alt={job.company} className="w-full h-full object-cover" />
+                                                ) : job.company.charAt(0)}
                                             </div>
 
                                             {/* Job Details */}
@@ -581,18 +618,18 @@ const JobsPage = () => {
                                                                     <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-500 mr-1"></div>
                                                                     Sending...
                                                                 </>
-                                                            ) :
-                                                                appliedJobIds.includes(job.id) ? (
-                                                                    <>
-                                                                        <Check className="w-3 h-3 mr-1" />
-                                                                        {appliedJobs.find(appliedJob => appliedJob?.jobId === job.id)?.status || 'Applied'}
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <Send className="w-3 h-3 mr-1" />
-                                                                        Apply
-                                                                    </>
-                                                                )}
+                                                            ) : 
+                                                            appliedJobIds.includes(job.id) ? (
+                                                                <>
+                                                                    <Check className="w-3 h-3 mr-1" />  
+                                                                    {appliedJobs.find(appliedJob => appliedJob?.id === job.id)?.status || 'Applied'}
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Send className="w-3 h-3 mr-1" />
+                                                                    Apply
+                                                                </>
+                                                            )}
                                                         </button>
                                                         <button
                                                             onClick={() => openViewModal('view', job)}
@@ -621,10 +658,12 @@ const JobsPage = () => {
                                                         <Clock className="w-4 h-4 mr-1 flex-shrink-0" />
                                                         {job.workingHours}
                                                     </div>
-                                                    <div className="flex items-center">
-                                                        <DollarSign className="w-4 h-4 mr-1 flex-shrink-0" />
-                                                        {formatSalary(job)}
-                                                    </div>
+                                                    {!job.hideSalary && (
+                                                        <div className="flex items-center">
+                                                            <DollarSign className="w-4 h-4 mr-1 flex-shrink-0" />
+                                                            {formatSalary(job)}
+                                                        </div>
+                                                    )}
                                                     <div className="flex items-center">
                                                         <Users className="w-4 h-4 mr-1 flex-shrink-0" />
                                                         {job.applicationsCount} applications

@@ -1,3 +1,8 @@
+export type MaterialNeeded = {
+    text: string;
+    isImportant: boolean;
+};
+
 export type Job = {
     id: string;
     title: string;
@@ -10,11 +15,13 @@ export type Job = {
     requirements: string[];
     responsibilities: string[];
     benefits: string[];
+    materialsNeeded: MaterialNeeded[];
     experienceLevel: string;
     workingHours: string;
     salaryMin: number;
     salaryMax: number;
     currency: string;
+    hideSalary: boolean;
     skills: string[];
     department: string;
     education: string;
@@ -23,7 +30,7 @@ export type Job = {
     applicationsCount: number;
     createdAt: string;
     updatedAt: string;
-    jobId: string;
+    photo?: string;
 };
 
 // export const mockJobsData: Job[] = [
