@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Search, HelpCircle, MessageCircle, Mail, Phone } from 'lucide-react';
+import { ChevronDown, ChevronUp, HelpCircle, MessageCircle, Mail, Phone } from 'lucide-react';
 import Footer from '../../../components/Footer';
 
 const FAQ = () => {
     const [isLoading, setIsLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
+    // const [searchTerm, setSearchTerm] = useState('');
     const [openFAQ, setOpenFAQ] = useState<number | null>(null);
     const [activeCategory, setActiveCategory] = useState('all');
 
@@ -101,9 +101,9 @@ const FAQ = () => {
 
     const filteredFAQs = faqs.filter(faq => {
         const matchesCategory = activeCategory === 'all' || faq.category === activeCategory;
-        const matchesSearch = faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesCategory && matchesSearch;
+        // const matchesSearch = faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        //                     faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesCategory;
     });
 
     const toggleFAQ = (id: number | null) => {
