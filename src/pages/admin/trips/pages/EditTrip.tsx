@@ -408,21 +408,36 @@ const EditTrip = () => {
     setSaving(true);
     
     try {
+      // First get the existing trip data to preserve createdAt
+      const tripRef = doc(db, 'trips', id);
+      const existingTripDoc = await getDoc(tripRef);
+      const existingTripData = existingTripDoc.data();
+      
       const tripData = {
         formData,
         stops,
         days,
         updatedAt: new Date().toISOString(),
+        createdAt: existingTripData?.createdAt || new Date().toISOString(), // Preserve or set createdAt
+      };
+
+      const tripOverviewData = {
+        ...formData,
+        updatedAt: new Date().toISOString(),
+        createdAt: existingTripData?.createdAt || new Date().toISOString(), // Preserve or set createdAt
       };
       
       console.log('Updating trip:', tripData);
       
-      const tripRef = doc(db, 'trips', id);
-      await setDoc(tripRef, tripData, { merge: true }); // Use merge to preserve createdAt
+      await setDoc(tripRef, tripData, { merge: true });
+
+      const tripOverviewRef = doc(db, 'tripOverview', id);
+      await setDoc(tripOverviewRef, tripOverviewData, { merge: true });
+
       console.log('Trip updated successfully with ID: ', id);
       
       alert('Trip updated successfully!');
-      navigate('/admin/trips');
+      // navigate('/admin/trips');
     } catch (error) {
       console.error('Error updating trip:', error);
       alert('Failed to update trip. Please try again.');

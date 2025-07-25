@@ -54,8 +54,8 @@ const formatPrice = (price: number): string => {
 };
 
 // Add helper function for flare
-const getTripFlare = (numberOfPeople: string) => {
-    const count = parseInt(numberOfPeople);
+const getTripFlare = (numberOfPeople: string | number) => {
+    const count = typeof numberOfPeople === 'string' ? parseInt(numberOfPeople) : numberOfPeople;
     if (count === 1) return { text: 'Single', color: 'bg-purple-100 text-purple-800' };
     if (count === 2) return { text: 'Couple', color: 'bg-pink-100 text-pink-800' };
     return { text: 'Group', color: 'bg-blue-100 text-blue-800' };
@@ -77,10 +77,9 @@ const AdminTrips = () => {
 	const [hasMore, setHasMore] = useState(true);
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const [totalActiveTrips, setTotalActiveTrips] = useState(0);
-	const TRIPS_PER_PAGE = 6; // Adjust based on your needs
+	const TRIPS_PER_PAGE = 20; // Adjust based on your needs
 	
-    // Fetch trips from Firebase
-
+    // Fetch trips from Firebase tripOverview collection
 	const fetchTrips = async (page = 1, reset = false) => {
 		try {
 			if (page === 1) {
@@ -90,18 +89,18 @@ const AdminTrips = () => {
 				setIsLoadingMore(true);
 			}
 			
-			const tripsRef = collection(db, 'trips');
-			let q = query(tripsRef, orderBy('createdAt', 'desc'));			
+			const tripOverviewRef = collection(db, 'tripOverview');
+			let q = query(tripOverviewRef, orderBy('createdAt', 'desc'));			
+			
 			// For pagination, we need to use startAfter with the last document
 			if (page > 1 && tripsData.length > 0 && !reset) {
-				// Get the last document from current data
 				const lastTripId = tripsData[tripsData.length - 1].id;
-				const lastDoc = await getDocs(query(collection(db, 'trips'), where('__name__', '==', lastTripId)));
+				const lastDoc = await getDocs(query(collection(db, 'tripOverview'), where('__name__', '==', lastTripId)));
 				if (!lastDoc.empty) {
-					q = query(tripsRef, orderBy('createdAt', 'desc'), startAfter(lastDoc.docs[0]), limit(TRIPS_PER_PAGE));
+					q = query(tripOverviewRef, orderBy('createdAt', 'desc'), startAfter(lastDoc.docs[0]), limit(TRIPS_PER_PAGE));
 				}
 			} else {
-				q = query(tripsRef, orderBy('createdAt', 'desc'), limit(TRIPS_PER_PAGE));
+				q = query(tripOverviewRef, orderBy('createdAt', 'desc'), limit(TRIPS_PER_PAGE));
 			}
 			
 			const querySnapshot = await getDocs(q);
@@ -109,23 +108,23 @@ const AdminTrips = () => {
 			
 			querySnapshot.forEach((doc) => {
 				const data = doc.data();
+
 				
-				// Optimized data transformation - only get essential fields
+				// Updated data transformation to use tripOverview structure
 				const trip: TripTableRow = {
 					id: doc.id,
-					name: data.formData?.travelName || 'Untitled Trip',
-					status: 'Active',
-					country: data.formData?.country || 'Unknown',
-					continent: data.formData?.continent || 'Unknown',
-					duration: calculateDuration(data.formData?.startDate, data.formData?.endDate),
-					description: `${data.formData?.numberOfPeople || '1'} ${parseInt(data.formData?.numberOfPeople) === 1 ? 'person' : 'people'} • ${data.stops?.length || 0} stops`,
-					price: parsePrice(data.formData?.pricePoint),
-					bookedCount: 0,
-					// Lazy load images - use placeholder first
-					imageUrl: data.formData?.heroImage || '/trip_hero_image.webp',
-					videoUrl: data.formData?.heroVideo || '',
+					name: data.travelName || 'Untitled Trip',
+					status: data.status || 'Active',
+					country: data.country || 'Unknown',
+					continent: data.continent || 'Unknown',
+					duration: calculateDuration(data.startDate, data.endDate),
+					description: `${data.numberOfPeople || '1'} ${parseInt(data.numberOfPeople) === 1 ? 'person' : 'people'}`,
+					price: parsePrice(data.pricePoint),
+					bookedCount: 0, // This would need to come from a separate bookings collection
+					imageUrl: data.heroImage || '/trip_hero_image.webp',
+					videoUrl: data.heroVideo || '',
 					createdAt: data.createdAt,
-					tripTags: data.formData?.tripTags || []
+					tripTags: data.tripTags || []
 				};
 				
 				trips.push(trip);
@@ -142,7 +141,8 @@ const AdminTrips = () => {
 			setHasMore(trips.length === TRIPS_PER_PAGE);
 			
 			// Get total count only on first load (expensive operation)
-			const countQuery = doc(db, 'trips', 'total');
+			// Update to use tripOverview collection for counts
+			const countQuery = doc(db, 'tripOverview', 'total');
 			if (page === 1) {
 				const countSnapshot = await getDoc(countQuery);
 				setTotalTrips(countSnapshot.data()?.totalTrips || 0);
@@ -157,6 +157,7 @@ const AdminTrips = () => {
 			setIsLoadingMore(false);
 		}
 	};
+	
 	
 
     useEffect(() => {
@@ -223,28 +224,40 @@ const AdminTrips = () => {
 
 	const handleConfirmDelete = async () => {
 		setIsDeleting(true);
-		setShowDeleteModal(false);
-		handleDeleteTrip(deletingTripId || '');
+		// setShowDeleteModal(false);
 
-		// delete trip from firebase
+		try {
+			// Update count in tripOverview collection
+			const countQuery = doc(db, 'tripOverview', 'total');
+			const countSnapshot = await getDoc(countQuery);
+			const totalTrips = countSnapshot.data()?.totalTrips || 0;
+			const totalActiveTrips = countSnapshot.data()?.totalActiveTrips || 0;
+			await setDoc(countQuery, { totalTrips: totalTrips - 1, totalActiveTrips: totalActiveTrips - 1 });
 
-		const countQuery = doc(db, 'trips', 'total');
-		const countSnapshot = await getDoc(countQuery);
-		const totalTrips = countSnapshot.data()?.totalTrips || 0;
-		const totalActiveTrips = countSnapshot.data()?.totalActiveTrips || 0;
-		await setDoc(countQuery, { totalTrips: totalTrips - 1, totalActiveTrips: totalActiveTrips - 1 });
+			const tripOverviewCountQuery = doc(db, 'tripOverview', 'total');
+			await setDoc(tripOverviewCountQuery, { totalTrips: totalTrips - 1, totalActiveTrips: totalActiveTrips - 1 });
 
-		const tripRef = doc(db, 'trips', deletingTripId || '');
-		await deleteDoc(tripRef);
+			// Delete from tripOverview collection
+			const tripOverviewRef = doc(db, 'tripOverview', deletingTripId || '');
+			await deleteDoc(tripOverviewRef);
 
-		// update tripsData
-		setTripsData(tripsData.filter(trip => trip.id !== deletingTripId));
-		setDeletingTripId(null);
+			// Also delete from main trips collection if it exists
+			const tripRef = doc(db, 'trips', deletingTripId || '');
+			await deleteDoc(tripRef);
 
-		// fetch trips again
-		fetchTrips();
-		setIsDeleting(false);
-		setShowDeleteModal(false);
+			// Update local state
+			setTripsData(tripsData.filter(trip => trip.id !== deletingTripId));
+			setDeletingTripId(null);
+
+			// Refresh the trips list
+			fetchTrips();
+		} catch (error) {
+			console.error('Error deleting trip:', error);
+			setError('Failed to delete trip. Please try again.');
+		} finally {
+			setIsDeleting(false);
+			setShowDeleteModal(false);
+		}
 	};
 
 	const handleCancelDelete = () => {
@@ -321,14 +334,8 @@ const AdminTrips = () => {
 						className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
 					</div>
-					{/* <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-						<MoreHorizontal className="w-4 h-4" />
-					</button> */}
 				</div>
 			</div>
-
-            {/* Search and Filters */}
-            
 
             <div className="flex items-center justify-between mb-6">
               <div className="flex space-x-4">
@@ -338,6 +345,8 @@ const AdminTrips = () => {
                   className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="All">All Statuses</option>
                   <option value="Active">Active</option>
+                  <option value="Draft">Draft</option>
+                  <option value="Archived">Archived</option>
                 </select>
                 <select 
                   value={continentFilter}
@@ -347,9 +356,6 @@ const AdminTrips = () => {
                     <option key={continent} value={continent}>{continent}</option>
                   ))}
                 </select>
-                {/* <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Filter className="w-4 h-4" />
-                </button> */}
               </div>
               <div className="flex space-x-2">
                 <button 
@@ -412,7 +418,7 @@ const AdminTrips = () => {
 										<Trash className="w-4 h-4" />
 									</button>
 								</div>
-								{/* Add flare badge */}
+								{/* Add flare badge - updated to use numberOfPeople from description */}
 								<div className="absolute bottom-2 left-2">
 									<div className={`${getTripFlare(trip.description.split(' ')[0]).color} px-2 py-1 rounded-full text-xs font-semibold flex items-center space-x-1`}>
 										<UsersIcon className="w-3 h-3" />
@@ -432,8 +438,8 @@ const AdminTrips = () => {
                               
                               {/* Add tags */}
                               <div className="flex flex-wrap gap-2 mb-3">
-                                  {trip.tripTags.map((tag) => (
-                                    <div className="flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                                  {trip.tripTags.map((tag, index) => (
+                                    <div key={index} className="flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
                                       <Tag className="w-3 h-3 mr-1" />
                                       {tag}
                                     </div>
@@ -534,16 +540,6 @@ const AdminTrips = () => {
                     )}
                 </>
             )}
-
-            {/* Results count */}
-			{/* {filteredData.length > 0 && (
-				<div className="mt-4 text-sm text-gray-500 flex justify-between items-center">
-					<span>Showing {filteredData.length} trips {totalTrips > 0 && `of ${totalTrips} total`}</span>
-					{hasMore && (
-						<span className="text-blue-600">{tripsData.length} loaded • Scroll for more</span>
-					)}
-				</div>
-			)} */}
           </div>
 
 		  {/* Delete Modal */}

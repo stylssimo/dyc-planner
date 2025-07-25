@@ -26,6 +26,8 @@ import AdminCVView from './pages/admin/cv/pages/view';
 import VisaPage from './pages/public/visa/index';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import ProfilePage from './pages/public/profile/index.tsx';
+import AboutUs from './pages/public/about-us/index.tsx';
+import FAQ from './pages/public/faq/index.tsx';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -165,6 +167,8 @@ const App = () => {
                     <Route path="cv" element={<UserCV />} />
                     <Route path="visa" element={<VisaPage />} />
                     <Route path="profile" element={<ProfilePage />} />
+                    <Route path='about-us' element={<AboutUs />} />
+                    <Route path='faq' element={<FAQ />} />
                   </Route>
                 </Routes>
               ) : (

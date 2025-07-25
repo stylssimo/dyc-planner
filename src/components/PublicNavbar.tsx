@@ -218,7 +218,6 @@ const PublicNavbar: React.FC<PublicNavbarProps> = ({ transparent = false, classN
   };
 
   const navClasses = `bg-black sticky top-0 left-0 right-0 z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-4 transition-all duration-700 ease-in-out ${showAuthForm ? 'z-0' : 'z-20'}`
-  // : `sticky bg-black z-20 flex justify-between items-center px-4 md:px-8 py-4 md:py-4`;
 
   const textClasses = transparent ? 'text-white' : 'text-white';
   const logoClasses = transparent ? 'text-white text-xl md:text-2xl font-bold flex items-center' : 'text-white text-xl md:text-2xl font-bold flex items-center';

@@ -584,12 +584,7 @@ const VisaPage = () => {
             <div className="bg-white shadow-sm border-b">
                 <div className="max-w-4xl mx-auto px-6 py-4">
                     <div className="flex items-center space-x-4">
-                        <button className="flex items-center text-gray-600 hover:text-gray-800">
-                            <ArrowLeft className="w-5 h-5 mr-2" />
-                            Back to Services
-                        </button>
-                        <div className="w-px h-6 bg-gray-300"></div>
-                        <h1 className="text-2xl font-bold text-gray-900">Visa Application</h1>
+                        <h1 className="text-2xl font-bold text-gray-900">Visa</h1>
                     </div>
                 </div>
             </div>

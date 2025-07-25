@@ -49,7 +49,7 @@ const TripsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [guests, setGuests] = useState('2 Adults');
+  const [adults, setAdults] = useState('1 Adult');
   const [filteredTrips, setFilteredTrips] = useState<PublicTrip[]>([]);
   const [continentFilter, setContinentFilter] = useState('All Continents');
   const [showMobileSearch, setShowMobileSearch] = useState(false);
@@ -57,25 +57,52 @@ const TripsPage = () => {
   const [tripType, setTripType] = useState('All');
 
   // Get URL search parameters on component mount
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchParam = urlParams.get('search') || '';
     const startParam = urlParams.get('startDate') || '';
     const endParam = urlParams.get('endDate') || '';
-    const guestsParam = urlParams.get('guests') || '2 Adults';
+    const adultsParam = urlParams.get('adults') || '';
     const typeParam = urlParams.get('type') || 'All';
 
     setSearchTerm(searchParam);
     setStartDate(startParam);
     setEndDate(endParam);
-    setGuests(guestsParam);
+    if (adultsParam) {
+      setAdults(adultsParam);
+    }
     setTripType(typeParam);
+
+    // Update URL with current parameters
+    const newParams = new URLSearchParams();
+    if (searchParam) newParams.set('search', searchParam);
+    if (startParam) newParams.set('startDate', startParam);
+    if (endParam) newParams.set('endDate', endParam);
+    if (adultsParam) newParams.set('adults', adultsParam);
+    if (typeParam !== 'All') newParams.set('type', typeParam);
+
+    // const newUrl = `${window.location.pathname}${newParams.toString() ? '?' + newParams.toString() : ''}`;
+    // window.history.replaceState({}, '', newUrl);
   }, []);
 
-  // Filter trips when search parameters or trips change
+  // Update URL when search parameters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchTerm) params.set('search', searchTerm);
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    if (adults) params.set('adults', adults);
+    if (tripType !== 'All') params.set('type', tripType);
+
+    // const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+    // window.history.replaceState({}, '', newUrl);
+  }, [searchTerm, startDate, endDate, adults, tripType]);
+
+  // Filtering logic: filter by adults
   useEffect(() => {
     if (!loading && trips.length > 0) {
-      let filtered = searchTrips(searchTerm, startDate, endDate, guests);
+      let filtered = searchTrips(searchTerm, startDate, endDate, adults);
 
       // Apply continent filter
       if (continentFilter !== 'All Continents') {
@@ -85,7 +112,7 @@ const TripsPage = () => {
       // Apply trip type filter
       if (tripType !== 'All') {
         filtered = filtered.filter(trip => {
-          const count = parseInt(trip.description.split(' ')[0]);
+          const count = parseInt(trip.numberOfPeople);
           if (tripType === 'Single' && count === 1) return true;
           if (tripType === 'Couple' && count === 2) return true;
           if (tripType === 'Group' && count > 2) return true;
@@ -99,15 +126,26 @@ const TripsPage = () => {
         return !isNaN(price) && price >= priceRange[0] && price <= priceRange[1];
       });
 
+      // Filter by adults
+      if (adults) {
+        const adultsNum = parseInt(adults);
+        filtered = filtered.filter(trip => {
+          const tripAdults = parseInt(trip.numberOfPeople);
+          if (isNaN(adultsNum) || isNaN(tripAdults)) return true;
+          if (adults.includes('+')) return tripAdults >= adultsNum;
+          return tripAdults === adultsNum;
+        });
+      }
+
       setFilteredTrips(filtered);
     }
-  }, [trips, searchTerm, startDate, endDate, guests, continentFilter, tripType, priceRange, loading]);
+  }, [trips, searchTerm, startDate, endDate, adults, continentFilter, tripType, priceRange, loading]);
 
   // Get unique continents for filter
   const uniqueContinents = ['All Continents', ...Array.from(new Set(trips.map(trip => trip.continent)))];
 
   const handleSearch = () => {
-    const filtered = searchTrips(searchTerm, startDate, endDate, guests);
+    const filtered = searchTrips(searchTerm, startDate, endDate, adults);
     setFilteredTrips(filtered);
   };
 
@@ -202,15 +240,16 @@ const TripsPage = () => {
               <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
                 <Users className="w-5 h-5 text-gray-500" />
                 <select
-                  value={guests}
-                  onChange={(e) => setGuests(e.target.value)}
+                  value={adults}
+                  onChange={(e) => setAdults(e.target.value)}
                   className="outline-none bg-transparent text-sm flex-1"
                 >
                   <option value="1 Adult">1 Adult</option>
                   <option value="2 Adults">2 Adults</option>
                   <option value="3 Adults">3 Adults</option>
                   <option value="4 Adults">4 Adults</option>
-                  <option value="Family (2+2)">Family (2+2)</option>
+                  <option value="5 Adults">5 Adults</option>
+                  <option value="6+ Adults">6+ Adults</option>
                 </select>
               </div>
             </div>
@@ -257,15 +296,16 @@ const TripsPage = () => {
               <div className="flex items-center space-x-2">
                 <Users className="w-5 h-5 text-gray-500 flex-shrink-0" />
                 <select
-                  value={guests}
-                  onChange={(e) => setGuests(e.target.value)}
+                  value={adults}
+                  onChange={(e) => setAdults(e.target.value)}
                   className="outline-none bg-transparent text-sm"
                 >
                   <option value="1 Adult">1 Adult</option>
                   <option value="2 Adults">2 Adults</option>
                   <option value="3 Adults">3 Adults</option>
                   <option value="4 Adults">4 Adults</option>
-                  <option value="Family (2+2)">Family (2+2)</option>
+                  <option value="5 Adults">5 Adults</option>
+                  <option value="6+ Adults">6+ Adults</option>
                 </select>
               </div>
             </div>

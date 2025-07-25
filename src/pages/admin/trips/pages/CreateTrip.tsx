@@ -369,6 +369,18 @@ const CreateTrip = () => {
         const totalActiveTrips = countSnapshot.data()?.totalActiveTrips || 0;
         await setDoc(countQuery, { totalTrips: totalTrips + 1, totalActiveTrips: totalActiveTrips + 1 });
 
+        const tripOverviewData = {
+          ...tripData.formData,
+          updatedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        };
+
+        const tripOverviewCountQuery = doc(db, 'tripOverview', 'total');
+        await setDoc(tripOverviewCountQuery, { totalTrips: totalTrips + 1, totalActiveTrips: totalActiveTrips + 1 });
+
+        const tripOverviewRef = doc(db, 'tripOverview', tripNameId);
+        await setDoc(tripOverviewRef, tripOverviewData);
+
         
         console.log('Document written with ID: ', tripNameId);
     }
