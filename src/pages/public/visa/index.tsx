@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, MapPin, Users, FileText, Upload, X } from 'lucide-react';
+import Footer from '../../../components/Footer';
 
 interface PersonalInfo {
     firstName: string;
@@ -32,7 +33,7 @@ interface DocumentInfo {
 const VisaPage = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
+
     // Form data states
     const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
         firstName: '',
@@ -139,12 +140,12 @@ const VisaPage = () => {
     const isStepValid = (step: number): boolean => {
         switch (step) {
             case 1:
-                return !!(personalInfo.firstName && personalInfo.lastName && personalInfo.email && 
-                         personalInfo.phone && personalInfo.dateOfBirth && personalInfo.nationality && 
-                         personalInfo.passportNumber && personalInfo.passportExpiry);
+                return !!(personalInfo.firstName && personalInfo.lastName && personalInfo.email &&
+                    personalInfo.phone && personalInfo.dateOfBirth && personalInfo.nationality &&
+                    personalInfo.passportNumber && personalInfo.passportExpiry);
             case 2:
-                return !!(travelInfo.destination && travelInfo.visaType && travelInfo.purposeOfVisit && 
-                         travelInfo.arrivalDate && travelInfo.departureDate && travelInfo.numberOfEntries);
+                return !!(travelInfo.destination && travelInfo.visaType && travelInfo.purposeOfVisit &&
+                    travelInfo.arrivalDate && travelInfo.departureDate && travelInfo.numberOfEntries);
             case 3:
                 return !!(documentInfo.passportCopy && documentInfo.photo);
             default:
@@ -166,7 +167,7 @@ const VisaPage = () => {
                                 <input
                                     type="text"
                                     value={personalInfo.firstName}
-                                    onChange={(e) => setPersonalInfo({...personalInfo, firstName: e.target.value})}
+                                    onChange={(e) => setPersonalInfo({ ...personalInfo, firstName: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
@@ -178,7 +179,7 @@ const VisaPage = () => {
                                 <input
                                     type="text"
                                     value={personalInfo.lastName}
-                                    onChange={(e) => setPersonalInfo({...personalInfo, lastName: e.target.value})}
+                                    onChange={(e) => setPersonalInfo({ ...personalInfo, lastName: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
@@ -190,7 +191,7 @@ const VisaPage = () => {
                                 <input
                                     type="email"
                                     value={personalInfo.email}
-                                    onChange={(e) => setPersonalInfo({...personalInfo, email: e.target.value})}
+                                    onChange={(e) => setPersonalInfo({ ...personalInfo, email: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
@@ -202,7 +203,7 @@ const VisaPage = () => {
                                 <input
                                     type="tel"
                                     value={personalInfo.phone}
-                                    onChange={(e) => setPersonalInfo({...personalInfo, phone: e.target.value})}
+                                    onChange={(e) => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
@@ -214,7 +215,7 @@ const VisaPage = () => {
                                 <input
                                     type="date"
                                     value={personalInfo.dateOfBirth}
-                                    onChange={(e) => setPersonalInfo({...personalInfo, dateOfBirth: e.target.value})}
+                                    onChange={(e) => setPersonalInfo({ ...personalInfo, dateOfBirth: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
@@ -225,7 +226,7 @@ const VisaPage = () => {
                                 </label>
                                 <select
                                     value={personalInfo.nationality}
-                                    onChange={(e) => setPersonalInfo({...personalInfo, nationality: e.target.value})}
+                                    onChange={(e) => setPersonalInfo({ ...personalInfo, nationality: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 >
@@ -242,7 +243,7 @@ const VisaPage = () => {
                                 <input
                                     type="text"
                                     value={personalInfo.passportNumber}
-                                    onChange={(e) => setPersonalInfo({...personalInfo, passportNumber: e.target.value})}
+                                    onChange={(e) => setPersonalInfo({ ...personalInfo, passportNumber: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
@@ -254,7 +255,7 @@ const VisaPage = () => {
                                 <input
                                     type="date"
                                     value={personalInfo.passportExpiry}
-                                    onChange={(e) => setPersonalInfo({...personalInfo, passportExpiry: e.target.value})}
+                                    onChange={(e) => setPersonalInfo({ ...personalInfo, passportExpiry: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
@@ -274,7 +275,7 @@ const VisaPage = () => {
                                 </label>
                                 <select
                                     value={travelInfo.destination}
-                                    onChange={(e) => setTravelInfo({...travelInfo, destination: e.target.value})}
+                                    onChange={(e) => setTravelInfo({ ...travelInfo, destination: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 >
@@ -290,7 +291,7 @@ const VisaPage = () => {
                                 </label>
                                 <select
                                     value={travelInfo.visaType}
-                                    onChange={(e) => setTravelInfo({...travelInfo, visaType: e.target.value})}
+                                    onChange={(e) => setTravelInfo({ ...travelInfo, visaType: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 >
@@ -307,7 +308,7 @@ const VisaPage = () => {
                                 <input
                                     type="text"
                                     value={travelInfo.purposeOfVisit}
-                                    onChange={(e) => setTravelInfo({...travelInfo, purposeOfVisit: e.target.value})}
+                                    onChange={(e) => setTravelInfo({ ...travelInfo, purposeOfVisit: e.target.value })}
                                     placeholder="Tourism, Business, Study, etc."
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
@@ -319,7 +320,7 @@ const VisaPage = () => {
                                 </label>
                                 <select
                                     value={travelInfo.numberOfEntries}
-                                    onChange={(e) => setTravelInfo({...travelInfo, numberOfEntries: e.target.value})}
+                                    onChange={(e) => setTravelInfo({ ...travelInfo, numberOfEntries: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 >
@@ -335,7 +336,7 @@ const VisaPage = () => {
                                 <input
                                     type="date"
                                     value={travelInfo.arrivalDate}
-                                    onChange={(e) => setTravelInfo({...travelInfo, arrivalDate: e.target.value})}
+                                    onChange={(e) => setTravelInfo({ ...travelInfo, arrivalDate: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
@@ -347,7 +348,7 @@ const VisaPage = () => {
                                 <input
                                     type="date"
                                     value={travelInfo.departureDate}
-                                    onChange={(e) => setTravelInfo({...travelInfo, departureDate: e.target.value})}
+                                    onChange={(e) => setTravelInfo({ ...travelInfo, departureDate: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
@@ -358,7 +359,7 @@ const VisaPage = () => {
                                 </label>
                                 <textarea
                                     value={travelInfo.accommodationAddress}
-                                    onChange={(e) => setTravelInfo({...travelInfo, accommodationAddress: e.target.value})}
+                                    onChange={(e) => setTravelInfo({ ...travelInfo, accommodationAddress: e.target.value })}
                                     placeholder="Hotel or accommodation address"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                                     rows={3}
@@ -492,7 +493,7 @@ const VisaPage = () => {
                                 </label>
                                 <textarea
                                     value={documentInfo.additionalNotes}
-                                    onChange={(e) => setDocumentInfo({...documentInfo, additionalNotes: e.target.value})}
+                                    onChange={(e) => setDocumentInfo({ ...documentInfo, additionalNotes: e.target.value })}
                                     placeholder="Any additional information or special requests..."
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                                     rows={4}
@@ -506,7 +507,7 @@ const VisaPage = () => {
                 return (
                     <div className="space-y-6">
                         <h3 className="text-xl font-semibold text-gray-900 mb-4">Review & Submit</h3>
-                        
+
                         <div className="space-y-6">
                             <div className="bg-gray-50 rounded-lg p-4">
                                 <h4 className="font-semibold text-gray-900 mb-3">Personal Information</h4>
@@ -607,15 +608,14 @@ const VisaPage = () => {
                                 <div key={step.id} className="flex items-center">
                                     <div className="flex flex-col items-center">
                                         <div
-                                            className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-colors ${
-                                                isCompleted
-                                                    ? 'bg-green-600 border-green-600 text-white'
-                                                    : isActive
+                                            className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-colors ${isCompleted
+                                                ? 'bg-green-600 border-green-600 text-white'
+                                                : isActive
                                                     ? 'bg-blue-600 border-blue-600 text-white'
                                                     : isAccessible
-                                                    ? 'border-gray-300 text-gray-400 hover:border-blue-600 cursor-pointer'
-                                                    : 'border-gray-200 text-gray-300'
-                                            }`}
+                                                        ? 'border-gray-300 text-gray-400 hover:border-blue-600 cursor-pointer'
+                                                        : 'border-gray-200 text-gray-300'
+                                                }`}
                                             onClick={() => isAccessible && setCurrentStep(step.id)}
                                         >
                                             {isCompleted ? (
@@ -625,18 +625,16 @@ const VisaPage = () => {
                                             )}
                                         </div>
                                         <span
-                                            className={`text-xs mt-2 text-center max-w-20 ${
-                                                isActive ? 'text-blue-600 font-medium' : 'text-gray-500'
-                                            }`}
+                                            className={`text-xs mt-2 text-center max-w-20 ${isActive ? 'text-blue-600 font-medium' : 'text-gray-500'
+                                                }`}
                                         >
                                             {step.title}
                                         </span>
                                     </div>
                                     {index < steps.length - 1 && (
                                         <div
-                                            className={`w-16 h-0.5 mx-4 ${
-                                                currentStep > step.id ? 'bg-green-600' : 'bg-gray-200'
-                                            }`}
+                                            className={`w-16 h-0.5 mx-4 ${currentStep > step.id ? 'bg-green-600' : 'bg-gray-200'
+                                                }`}
                                         />
                                     )}
                                 </div>
@@ -701,6 +699,7 @@ const VisaPage = () => {
                     </p>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 };

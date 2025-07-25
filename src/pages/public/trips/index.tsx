@@ -3,6 +3,7 @@ import { Calendar, Users, MapPin, Search, X, Tag } from 'lucide-react';
 import { useTrips, type PublicTrip } from '../../../hooks/useTrips';
 import HeroYouTube from '../../../components/HeroYoutube';
 import { useCurrency } from '../../../contexts/CurrencyContext';
+import Footer from '../../../components/Footer';
 
 // Helper function to calculate duration from dates
 const calculateDuration = (startDate: string, endDate: string): string => {
@@ -21,16 +22,16 @@ const calculateDuration = (startDate: string, endDate: string): string => {
 
   const weeks = Math.floor(diffDays / 7);
   const remainingDays = diffDays % 7;
-  
+
   let result = '';
   if (weeks === 1) result += '1 week';
   else if (weeks > 1) result += `${weeks} weeks`;
-  
+
   if (remainingDays > 0) {
     if (result) result += ' ';
     result += remainingDays === 1 ? '1 day' : `${remainingDays} days`;
   }
-  
+
   return result;
 };
 
@@ -75,7 +76,7 @@ const TripsPage = () => {
   useEffect(() => {
     if (!loading && trips.length > 0) {
       let filtered = searchTrips(searchTerm, startDate, endDate, guests);
-      
+
       // Apply continent filter
       if (continentFilter !== 'All Continents') {
         filtered = filtered.filter(trip => trip.continent === continentFilter);
@@ -97,7 +98,7 @@ const TripsPage = () => {
         const price = parseFloat(trip.price.replace(/[^0-9.]/g, ''));
         return !isNaN(price) && price >= priceRange[0] && price <= priceRange[1];
       });
-      
+
       setFilteredTrips(filtered);
     }
   }, [trips, searchTerm, startDate, endDate, guests, continentFilter, tripType, priceRange, loading]);
@@ -126,7 +127,7 @@ const TripsPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
@@ -151,69 +152,69 @@ const TripsPage = () => {
             </div>
           </div>
           <div className="space-y-4 mt-3 md:hidden">
-              {/* Mobile Search Fields */}
-              {/* Destination */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Destination</label>
-                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
-                  <MapPin className="w-5 h-5 text-gray-500" />
-                  <input 
-                    type="text" 
-                    placeholder="Search destinations, countries..." 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="outline-none bg-transparent text-sm flex-1"
-                  />
-                </div>
-              </div>
-
-              {/* Check-in Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
-                  <Calendar className="w-5 h-5 text-gray-500" />
-                  <input 
-                    type="date" 
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="outline-none bg-transparent text-sm flex-1"
-                  />
-                </div>
-              </div>
-
-              {/* Check-out Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
-                  <Calendar className="w-5 h-5 text-gray-500" />
-                  <input 
-                    type="date" 
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="outline-none bg-transparent text-sm flex-1"
-                  />
-                </div>
-              </div>
-
-              {/* Guests */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Guests</label>
-                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
-                  <Users className="w-5 h-5 text-gray-500" />
-                  <select 
-                    value={guests}
-                    onChange={(e) => setGuests(e.target.value)}
-                    className="outline-none bg-transparent text-sm flex-1"
-                  >
-                    <option value="1 Adult">1 Adult</option>
-                    <option value="2 Adults">2 Adults</option>
-                    <option value="3 Adults">3 Adults</option>
-                    <option value="4 Adults">4 Adults</option>
-                    <option value="Family (2+2)">Family (2+2)</option>
-                  </select>
-                </div>
+            {/* Mobile Search Fields */}
+            {/* Destination */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Destination</label>
+              <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
+                <MapPin className="w-5 h-5 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search destinations, countries..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="outline-none bg-transparent text-sm flex-1"
+                />
               </div>
             </div>
+
+            {/* Check-in Date */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+              <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
+                <Calendar className="w-5 h-5 text-gray-500" />
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="outline-none bg-transparent text-sm flex-1"
+                />
+              </div>
+            </div>
+
+            {/* Check-out Date */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+              <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
+                <Calendar className="w-5 h-5 text-gray-500" />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="outline-none bg-transparent text-sm flex-1"
+                />
+              </div>
+            </div>
+
+            {/* Guests */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Guests</label>
+              <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-3">
+                <Users className="w-5 h-5 text-gray-500" />
+                <select
+                  value={guests}
+                  onChange={(e) => setGuests(e.target.value)}
+                  className="outline-none bg-transparent text-sm flex-1"
+                >
+                  <option value="1 Adult">1 Adult</option>
+                  <option value="2 Adults">2 Adults</option>
+                  <option value="3 Adults">3 Adults</option>
+                  <option value="4 Adults">4 Adults</option>
+                  <option value="Family (2+2)">Family (2+2)</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -224,9 +225,9 @@ const TripsPage = () => {
             <div className="flex-1 flex items-center space-x-2 lg:space-x-4 bg-gray-50 rounded-lg p-3 lg:p-4">
               <div className="flex items-center space-x-2 flex-1 min-w-0">
                 <MapPin className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                <input 
-                  type="text" 
-                  placeholder="Search destinations..." 
+                <input
+                  type="text"
+                  placeholder="Search destinations..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="outline-none bg-transparent text-sm flex-1 min-w-0"
@@ -235,8 +236,8 @@ const TripsPage = () => {
               <div className="h-6 w-px bg-gray-300 hidden lg:block"></div>
               <div className="flex items-center space-x-2">
                 <Calendar className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   className="outline-none bg-transparent text-sm w-auto"
@@ -245,8 +246,8 @@ const TripsPage = () => {
               <div className="h-6 w-px bg-gray-300 hidden lg:block"></div>
               <div className="flex items-center space-x-2">
                 <Calendar className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   className="outline-none bg-transparent text-sm w-auto"
@@ -255,7 +256,7 @@ const TripsPage = () => {
               <div className="h-6 w-px bg-gray-300 hidden lg:block"></div>
               <div className="flex items-center space-x-2">
                 <Users className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                <select 
+                <select
                   value={guests}
                   onChange={(e) => setGuests(e.target.value)}
                   className="outline-none bg-transparent text-sm"
@@ -268,7 +269,7 @@ const TripsPage = () => {
                 </select>
               </div>
             </div>
-            <button 
+            <button
               onClick={handleSearch}
               className="bg-blue-600 text-white px-4 lg:px-6 py-3 lg:py-4 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
             >
@@ -285,7 +286,7 @@ const TripsPage = () => {
           <div className="p-4">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold">Search Trips</h2>
-              <button 
+              <button
                 onClick={() => setShowMobileSearch(false)}
                 className="p-2 hover:bg-gray-100 rounded-lg"
               >
@@ -294,7 +295,7 @@ const TripsPage = () => {
             </div>
 
             {/* Mobile Search Button */}
-            <button 
+            <button
               onClick={handleSearch}
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 flex items-center justify-center space-x-2 mt-6"
             >
@@ -309,7 +310,7 @@ const TripsPage = () => {
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap items-center gap-3">
-            <select 
+            <select
               value={continentFilter}
               onChange={(e) => setContinentFilter(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -319,7 +320,7 @@ const TripsPage = () => {
               ))}
             </select>
 
-            <select 
+            <select
               value={tripType}
               onChange={(e) => setTripType(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -382,8 +383,8 @@ const TripsPage = () => {
                       />
                     </div>
                   ) : (
-                    <img 
-                      src={trip.imageUrl} 
+                    <img
+                      src={trip.imageUrl}
                       alt={trip.name}
                       className="w-full h-48 object-cover"
                       onError={(e) => {
@@ -442,7 +443,7 @@ const TripsPage = () => {
                     <div className="text-left">
                       <p className="text-2xl font-bold text-gray-900">{trip.currency + '' + formatPrice(parseFloat(trip.price))}</p>
                     </div>
-                    <button 
+                    <button
                       onClick={() => window.open(`/trip/${trip.id}`, '_blank')}
                       className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                     >
@@ -455,7 +456,9 @@ const TripsPage = () => {
           </div>
         )}
       </div>
+      <Footer />
     </div>
+
   );
 };
 

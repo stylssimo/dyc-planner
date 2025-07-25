@@ -3,6 +3,7 @@ import { User, Mail, Phone, MapPin, Briefcase, GraduationCap, Globe, Plus, Edit,
 import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import Footer from '../../../components/Footer';
 
 interface PersonalInfo {
   fullName: string;
@@ -111,7 +112,7 @@ const UserCV = () => {
     try {
       setSaving(true);
       const userRef = doc(db, 'users', user.email);
-      
+
       const updatedCV = {
         ...cvData,
         lastUpdated: new Date().toISOString()
@@ -157,7 +158,7 @@ const UserCV = () => {
     if (!cvData) return;
     setCvData({
       ...cvData,
-      education: cvData.education.map(edu => 
+      education: cvData.education.map(edu =>
         edu.id === id ? { ...edu, [field]: value } : edu
       )
     });
@@ -193,7 +194,7 @@ const UserCV = () => {
     if (!cvData) return;
     setCvData({
       ...cvData,
-      workExperience: cvData.workExperience.map(work => 
+      workExperience: cvData.workExperience.map(work =>
         work.id === id ? { ...work, [field]: value } : work
       )
     });
@@ -465,7 +466,7 @@ const UserCV = () => {
               </button>
             )}
           </div>
-          
+
           {cvData.workExperience.length === 0 ? (
             <p className="text-gray-500">No work experience added yet.</p>
           ) : (
@@ -565,7 +566,7 @@ const UserCV = () => {
               </button>
             )}
           </div>
-          
+
           {cvData.education.length === 0 ? (
             <p className="text-gray-500">No education added yet.</p>
           ) : (
@@ -723,7 +724,7 @@ const UserCV = () => {
                 </button>
               )}
             </div>
-            
+
             {cvData.languages.length === 0 ? (
               <p className="text-gray-500">No languages added yet.</p>
             ) : (
@@ -771,6 +772,7 @@ const UserCV = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

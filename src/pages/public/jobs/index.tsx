@@ -4,49 +4,50 @@ import type { Job } from './components/mockData';
 import { db } from '../../../firebase';
 import { collection, getDocs, query, orderBy, doc, getDoc, addDoc, setDoc, where } from 'firebase/firestore';
 import { useAuth } from '../../../contexts/AuthContext';
+import Footer from '../../../components/Footer';
 
 // Types for modal states
 type ModalType = 'create' | 'view' | 'edit' | 'delete' | null;
 
 interface JobFormData {
-  title: string;
-  position: string;
-  company: string;
-  location: string;
-  type: Job['type'];
-  status: Job['status'];
-  description: string;
-  requirements: string[];
-  responsibilities: string[];
-  benefits: string[];
-  experienceLevel: string;
-  workingHours: string;
-  salaryMin: number;
-  salaryMax: number;
-  currency: string;
-  skills: string[];
-  department: string;
-  education: string;
-  applicationDeadline: string;
+    title: string;
+    position: string;
+    company: string;
+    location: string;
+    type: Job['type'];
+    status: Job['status'];
+    description: string;
+    requirements: string[];
+    responsibilities: string[];
+    benefits: string[];
+    experienceLevel: string;
+    workingHours: string;
+    salaryMin: number;
+    salaryMax: number;
+    currency: string;
+    skills: string[];
+    department: string;
+    education: string;
+    applicationDeadline: string;
 }
 
 // Modal Components (moved outside to prevent recreation)
 interface ModalProps {
-  selectedJob: Job | null;
-  formData: JobFormData;
-  currentModal: ModalType;
-  closeModal: () => void;
-  handleCreateJob: () => void;
-  handleUpdateJob: () => void;
-  handleDeleteJob: () => void;
-  updateFormField: (field: keyof JobFormData, value: any) => void;
-  updateArrayField: (field: keyof JobFormData, index: number, value: string) => void;
-  addArrayItem: (field: keyof JobFormData) => void;
-  removeArrayItem: (field: keyof JobFormData, index: number) => void;
-  formatSalary: (job: Job) => string;
-  formatDate: (dateString: string) => string;
-  getStatusColor: (status: string) => string;
-  sendCV: (job: Job) => Promise<void>;
+    selectedJob: Job | null;
+    formData: JobFormData;
+    currentModal: ModalType;
+    closeModal: () => void;
+    handleCreateJob: () => void;
+    handleUpdateJob: () => void;
+    handleDeleteJob: () => void;
+    updateFormField: (field: keyof JobFormData, value: any) => void;
+    updateArrayField: (field: keyof JobFormData, index: number, value: string) => void;
+    addArrayItem: (field: keyof JobFormData) => void;
+    removeArrayItem: (field: keyof JobFormData, index: number) => void;
+    formatSalary: (job: Job) => string;
+    formatDate: (dateString: string) => string;
+    getStatusColor: (status: string) => string;
+    sendCV: (job: Job) => Promise<void>;
 }
 
 function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, sendCV, sendingJobIds }: Pick<ModalProps, 'selectedJob' | 'closeModal' | 'formatSalary' | 'formatDate' | 'getStatusColor' | 'sendCV'> & { sendingJobIds: Set<string> }) {
@@ -55,7 +56,7 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, sendC
     const handleSendCV = async () => {
         await sendCV(selectedJob);
     };
-    
+
     return (
         <div className="p-4 sm:p-6">
             <div className="flex justify-between items-center mb-6">
@@ -161,11 +162,10 @@ function ViewJobModal({ selectedJob, closeModal, formatSalary, formatDate, sendC
                         <button
                             onClick={handleSendCV}
                             disabled={sendingJobIds.has(selectedJob.id)}
-                            className={`w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-colors ${
-                                sendingJobIds.has(selectedJob.id) 
-                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    : 'bg-blue-600 hover:bg-blue-700 text-white'
-                            }`}
+                            className={`w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-colors ${sendingJobIds.has(selectedJob.id)
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                }`}
                         >
                             {sendingJobIds.has(selectedJob.id) ? (
                                 <>
@@ -209,12 +209,12 @@ const JobsPage = () => {
 
     const fetchApplications = async () => {
         if (!user?.email) return;
-        
+
         try {
             // Query the jobApplications subcollection under the user document
             const applicationsRef = collection(db, 'users', user.email, 'jobApplications');
             const querySnapshot = await getDocs(applicationsRef);
-            
+
             const jobIds: string[] = [];
             const appliedJobsHolder: Job[] = [];
             querySnapshot.docs.forEach(doc => {
@@ -224,7 +224,7 @@ const JobsPage = () => {
                     appliedJobsHolder.push(data as Job);
                 }
             });
-    
+
             setAppliedJobIds(jobIds);
             setAppliedJobs(appliedJobsHolder);
 
@@ -239,13 +239,13 @@ const JobsPage = () => {
             try {
                 setLoading(true);
                 setError(null);
-                
+
                 const jobsRef = collection(db, 'jobs');
                 const q = query(jobsRef, orderBy('createdAt', 'desc'));
                 const querySnapshot = await getDocs(q);
-                
+
                 const jobsData: Job[] = [];
-                
+
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     const job: Job = {
@@ -254,16 +254,16 @@ const JobsPage = () => {
                     } as Job;
                     jobsData.push(job);
                 });
-                
+
                 setJobs(jobsData);
 
-                if (user?.email?.length === 0 || user?.email === null || user?.email === undefined){
+                if (user?.email?.length === 0 || user?.email === null || user?.email === undefined) {
                     setError('Please Login to view jobs.');
                 } else {
-                    
+
                     const applicationsRef = collection(db, 'users', user?.email || '', 'jobApplications');
                     const applicationsQuerySnapshot = await getDocs(applicationsRef);
-                    
+
                     const jobIds: string[] = [];
                     const appliedJobsHolder: Job[] = [];
                     applicationsQuerySnapshot.docs.forEach(doc => {
@@ -273,13 +273,13 @@ const JobsPage = () => {
                             appliedJobsHolder.push(data as Job);
                         }
                     });
-        
+
                     setAppliedJobIds(jobIds);
                     setAppliedJobs(appliedJobsHolder);
                 }
             } catch (err) {
                 console.error('Error fetching jobs:', err);
-                if (user?.email?.length === 0 || user?.email === null || user?.email === undefined){
+                if (user?.email?.length === 0 || user?.email === null || user?.email === undefined) {
                     setError('Please Login to view jobs.');
                 } else {
                     setError('Failed to load jobs. Please try again.');
@@ -309,36 +309,36 @@ const JobsPage = () => {
             setError('You must be logged in to apply for jobs.');
             return;
         }
-    
+
         try {
             // Add job ID to sending state
             setSendingJobIds(prev => new Set(prev).add(job.id));
             setError(null);
-    
+
             // Get user's CV data
             const userDocRef = doc(db, 'users', user.email);
             const userDocSnap = await getDoc(userDocRef);
-    
+
             if (!userDocSnap.exists()) {
                 throw new Error('User profile not found. Please complete your profile first.');
             }
-    
+
             const userData = userDocSnap.data();
             const cvData = userData.CV;
-    
+
             if (!cvData) {
                 throw new Error('CV not found. Please upload your CV in your profile first.');
             }
-    
+
             // Check if already applied to avoid duplicates
             const jobApplicationsRef = collection(db, 'users', user.email, 'jobApplications');
             const existingApplicationQuery = query(jobApplicationsRef, where('jobId', '==', job.id));
             const existingApplicationSnap = await getDocs(existingApplicationQuery);
-    
+
             if (!existingApplicationSnap.empty) {
                 throw new Error('You have already applied for this job.');
             }
-    
+
             // Prepare application data for CV collection (for admin view)
             const applicationData = {
                 jobId: job.id,
@@ -353,23 +353,23 @@ const JobsPage = () => {
                 reviewedAt: null,
                 notes: ''
             };
-    
+
             // Store in CV collection (for admin view)
             const cvCollectionRef = collection(db, 'cv');
             await addDoc(cvCollectionRef, applicationData);
 
             // Store in user's jobApplications subcollection - THIS IS THE KEY FIX
-            await setDoc(doc(db, 'users', user.email, 'jobApplications', job.id), applicationData);    
+            await setDoc(doc(db, 'users', user.email, 'jobApplications', job.id), applicationData);
             setSuccessMessage(`Successfully applied for ${job.title} at ${job.company}!`);
-            
+
             // Refresh the applied jobs list
             await fetchApplications();
-            
+
             // Close modal if open
             if (currentModal === 'view') {
                 closeModal();
             }
-    
+
         } catch (err) {
             console.error('Error sending CV:', err);
             setError(err instanceof Error ? err.message : 'Failed to send CV. Please try again.');
@@ -414,13 +414,13 @@ const JobsPage = () => {
     const filteredJobs = useMemo(() => {
         return jobs.filter(job => {
             const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                 job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                 job.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                 job.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
-            
+                job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                job.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                job.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
+
             const matchesType = typeFilter === 'All' || job.type === typeFilter;
             const isActive = job.status === 'Active';
-            
+
             return matchesSearch && matchesType && isActive;
         });
     }, [jobs, searchTerm, typeFilter]);
@@ -438,7 +438,7 @@ const JobsPage = () => {
         const now = new Date();
         const diffTime = Math.abs(now.getTime() - date.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays === 1) return '1 day ago';
         if (diffDays < 7) return `${diffDays} days ago`;
         if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
@@ -480,7 +480,7 @@ const JobsPage = () => {
                     <div className="flex items-center justify-center h-64">
                         <div className="text-center">
                             <p className="text-red-600 mb-4">{error}</p>
-                            <button 
+                            <button
                                 onClick={() => window.location.reload()}
                                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                             >
@@ -501,7 +501,7 @@ const JobsPage = () => {
                     {successMessage && (
                         <div className="mb-4 p-3 sm:p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center">
                             <div className="flex-1 text-sm sm:text-base">{successMessage}</div>
-                            <button 
+                            <button
                                 onClick={() => setSuccessMessage(null)}
                                 className="text-green-700 hover:text-green-900"
                             >
@@ -514,7 +514,7 @@ const JobsPage = () => {
                     {error && (
                         <div className="mb-4 p-3 sm:p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center">
                             <div className="flex-1 text-sm sm:text-base">{error}</div>
-                            <button 
+                            <button
                                 onClick={() => setError(null)}
                                 className="text-red-700 hover:text-red-900"
                             >
@@ -535,7 +535,7 @@ const JobsPage = () => {
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
-                        <select 
+                        <select
                             value={typeFilter}
                             onChange={(e) => setTypeFilter(e.target.value)}
                             className="w-full sm:w-auto border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -558,7 +558,7 @@ const JobsPage = () => {
                                             <div className={`hidden sm:flex w-16 h-16 ${getCompanyIconColor(index)} rounded-lg items-center justify-center text-white font-bold text-lg`}>
                                                 {job.company.charAt(0)}
                                             </div>
-                                            
+
                                             {/* Job Details */}
                                             <div className="flex-1 w-full">
                                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 space-y-2 sm:space-y-0">
@@ -568,34 +568,33 @@ const JobsPage = () => {
                                                         <h3 className="text-xl font-semibold text-blue-600">{job.company}</h3>
                                                     </div>
                                                     <div className="flex flex-wrap gap-2">
-                                                        <button 
+                                                        <button
                                                             onClick={() => sendCV(job)}
                                                             disabled={sendingJobIds.has(job.id) || appliedJobIds.includes(job.id)}
-                                                            className={`flex items-center px-3 py-1 text-sm rounded-lg font-medium transition-colors ${
-                                                                sendingJobIds.has(job.id) || appliedJobIds.includes(job.id)
-                                                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                                    : 'bg-green-600 hover:bg-green-700 text-white'
-                                                            }`}
+                                                            className={`flex items-center px-3 py-1 text-sm rounded-lg font-medium transition-colors ${sendingJobIds.has(job.id) || appliedJobIds.includes(job.id)
+                                                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                                : 'bg-green-600 hover:bg-green-700 text-white'
+                                                                }`}
                                                         >
                                                             {sendingJobIds.has(job.id) ? (
                                                                 <>
                                                                     <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-500 mr-1"></div>
                                                                     Sending...
                                                                 </>
-                                                            ) : 
-                                                            appliedJobIds.includes(job.id) ? (
-                                                                <>
-                                                                    <Check className="w-3 h-3 mr-1" />  
-                                                                    {appliedJobs.find(appliedJob => appliedJob?.jobId === job.id)?.status || 'Applied'}
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <Send className="w-3 h-3 mr-1" />
-                                                                    Apply
-                                                                </>
-                                                            )}
+                                                            ) :
+                                                                appliedJobIds.includes(job.id) ? (
+                                                                    <>
+                                                                        <Check className="w-3 h-3 mr-1" />
+                                                                        {appliedJobs.find(appliedJob => appliedJob?.jobId === job.id)?.status || 'Applied'}
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <Send className="w-3 h-3 mr-1" />
+                                                                        Apply
+                                                                    </>
+                                                                )}
                                                         </button>
-                                                        <button 
+                                                        <button
                                                             onClick={() => openViewModal('view', job)}
                                                             className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
                                                         >
@@ -604,11 +603,11 @@ const JobsPage = () => {
                                                         </button>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <p className="text-gray-400 text-sm mb-2">{job.position}</p>
-                                                
+
                                                 <p className="text-gray-700 mb-4 line-clamp-2">{job.description}</p>
-                                                
+
                                                 <div className="flex flex-wrap gap-2 sm:gap-4 text-sm text-gray-600 mb-4">
                                                     <div className="flex items-center">
                                                         <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
@@ -631,7 +630,7 @@ const JobsPage = () => {
                                                         {job.applicationsCount} applications
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
                                                     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                                                         <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getTypeColor(job.type)}`}>
@@ -679,7 +678,7 @@ const JobsPage = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn p-4">
                     <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-slideUp">
                         {currentModal === 'view' && selectedJob && (
-                            <ViewJobModal 
+                            <ViewJobModal
                                 selectedJob={selectedJob}
                                 closeModal={closeModal}
                                 formatSalary={formatSalary}
@@ -692,6 +691,7 @@ const JobsPage = () => {
                     </div>
                 </div>
             )}
+            <Footer />
         </>
     );
 };
